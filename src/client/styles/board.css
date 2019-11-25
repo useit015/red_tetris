@@ -1,0 +1,36 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.board {
+	background: #222;
+	width: 400px;
+	height: 800px;
+	margin: 10rem auto;
+	display: grid;
+	grid-template-columns: repeat(10, 1fr);
+	grid-template-rows: repeat(20, 1fr);
+}
+
+.cell {
+	position: relative;
+	border: 1px solid black;
+}
+
+.cell::before,
+.cell::after {
+	content: '';
+	position: absolute;
+	width: 2px;
+	height: 56px;
+	background: #222;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.cell::before {
+	transform: translate(-50%, -50%) rotate(-45deg);
+}
