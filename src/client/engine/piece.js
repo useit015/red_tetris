@@ -1,6 +1,6 @@
-import * as R from 'ramda'
+import R from 'ramda'
 
-import { rotate, mapMatrix } from './matrix'
+import { rotate, mapMatrix, copyMatrix } from './matrix'
 
 const randInt = (max, min = 0) => ~~(Math.random() * max + min)
 
@@ -8,8 +8,9 @@ const randEl = arr => arr[randInt(arr.length)]
 
 const randRot = matrix => {
 	const rot = randInt(4)
-	for (let i = 0; i < rot; i++) matrix = rotate(matrix)
-	return matrix
+	let rotated = copyMatrix(matrix)
+	for (let i = 0; i < rot; i++) rotated = rotate(rotated)
+	return rotated
 }
 
 const allPcs = () =>
@@ -32,13 +33,16 @@ const genPcs = () => {
 	)()
 }
 
-export const getRandomPiece = width => {
-	const coord = genPcs()
+export const getRandomPiece = (width = 10) => {
+	const coord = R.compose(
+		R.map(R.join('')),
+		genPcs
+	)()
 	return {
 		coord,
 		pos: {
 			x: ~~(width / 2 - coord[0].length / 2),
-			y: 0,
-		},
+			y: 0
+		}
 	}
 }

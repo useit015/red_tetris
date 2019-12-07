@@ -1,30 +1,23 @@
-import * as R from 'ramda'
+import R from 'ramda'
 
 import {
 	addCurrentPiece,
 	willCollide,
 	movePiece,
-	sweepArena,
-	rotatePiece,
+	dropPiece,
+	cleanArena,
+	rotatePiece
 } from './tetris'
 
 import { makeMatrix, toString } from './matrix'
 
 import { getRandomPiece } from './piece'
 
-export const initState = (width, height) => ({
-	width,
-	height,
-	moves: [],
-	arena: makeMatrix(width, height),
-	piece: getRandomPiece(width),
-})
-
 const nextArena = ({ arena, piece, width, height }) =>
 	willCollide(arena, piece.pos.x, piece.pos.y + 1)(piece.coord)
 		? piece.pos.y
 			? R.compose(
-					sweepArena,
+					cleanArena,
 					addCurrentPiece(piece)
 			  )(arena)
 			: makeMatrix(width, height)
@@ -34,63 +27,110 @@ const nextPiece = state =>
 	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + 1)(
 		state.piece.coord
 	)
-		? getRandomPiece(state.width)
-		: movePiece()(state)
+		? state.next
+		: movePiece(state)
 
-const nextState = R.applySpec({
-	moves: () => [],
-	width: R.prop('width'),
-	height: R.prop('height'),
-	arena: nextArena,
-	piece: nextPiece,
-})
+const nextNext = nextPcs => state =>
+	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + 1)(
+		state.piece.coord
+	) || JSON.stringify(state.next) === '{}'
+		? nextPcs
+		: state.next
 
-export const next = state =>
-	R.pipe(
-		...state.moves,
-		nextState
-	)(state)
-
-export const stateToString = state =>
-	R.compose(
-		toString,
-		addCurrentPiece(state.piece),
-		R.prop('arena')
-	)(state)
-
-export const stateToArr = state =>
-	R.compose(
-		R.flatten,
-		addCurrentPiece(state.piece),
-		R.prop('arena')
-	)(state)
-
-const updatePiece = f =>
+const nextState = (nextPcs, curPcs) =>
 	R.applySpec({
-		moves: R.prop('moves'),
+		moves: ({ moves }) => moves.slice(1),
 		width: R.prop('width'),
 		height: R.prop('height'),
-		arena: R.prop('arena'),
-		piece: f,
+		pause: R.prop('pause'),
+		arena: nextArena,
+		piece: curPcs ? () => curPcs : nextPiece,
+		next: nextNext(nextPcs)
 	})
 
-const drop = state => updatePiece(movePiece())(state)
+const merge = state =>
+	R.compose(
+		addCurrentPiece(state.piece),
+		R.prop('arena')
+	)(state)
 
-const move = dir => state => updatePiece(movePiece(0, dir))(state)
+const drop = state => R.assoc('piece', movePiece(state), state)
 
-const rotate = state => updatePiece(rotatePiece)(state)
+const dropDown = state => R.assoc('piece', dropPiece(state), state)
 
-export const handleInput = cb => ({ keyCode }) => {
-	const ms = {
-		'32': rotate,
-		'40': drop,
-		'39': move(1),
-		'37': move(-1),
+const move = dir => state => R.assoc('piece', movePiece(state, 0, dir), state)
+
+const rotate = state => R.assoc('piece', rotatePiece(state), state)
+
+const togglePause = state => R.assoc('pause', !state.pause, state)
+
+const mutateState = action => state => (!state.pause ? action(state) : state)
+
+export const initState = (width, height) => ({
+	width,
+	height,
+	moves: [],
+	pause: false,
+	arena: makeMatrix(width, height),
+	piece: {
+		coord: [],
+		pos: { x: 0, y: 0 }
+	},
+	next: {}
+})
+
+export const next = (nextPcs, curPcs) => state =>
+	!state.pause
+		? R.pipe(
+				state && state.moves && state.moves.length
+					? state.moves[0]
+					: R.identity,
+				nextState(nextPcs, curPcs)
+		  )(state)
+		: state
+
+export const stateToString = R.compose(
+	toString,
+	merge
+)
+
+export const stateToArr = R.compose(
+	R.flatten,
+	merge
+)
+
+export const handleInput = cb => event => {
+	let action = null
+	const keys = {
+		p: 80,
+		top: 38,
+		left: 37,
+		down: 40,
+		right: 39,
+		space: 32
 	}
-	if ([32, 40, 39, 37].find(x => x == keyCode)) {
-		cb(state => ({
-			...state,
-			moves: [...state.moves, ms[keyCode]],
-		}))
+	switch (event.keyCode) {
+		case keys.top:
+			action = mutateState(rotate)
+			break
+		case keys.space:
+			action = mutateState(drop)
+			break
+		case keys.right:
+			action = mutateState(move(1))
+			break
+		case keys.left:
+			action = mutateState(move(-1))
+			break
+		case keys.down:
+			action = mutateState(dropDown)
+			break
+		case keys.p:
+			action = togglePause
+			break
+		default:
+			action = null
+			break
 	}
+	cb(action)
 }

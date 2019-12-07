@@ -1,4 +1,4 @@
-import * as R from 'ramda'
+import R from 'ramda'
 
 const makeRow = (length, fill = '.') => new Array(length).fill(fill)
 
@@ -33,24 +33,6 @@ const doubleRow = R.compose(
 	R.map(x => [x, x])
 )
 
-const getColor = i => {
-	const colors = [
-		'\x1b[41m',
-		'\x1b[42m',
-		'\x1b[43m',
-		'\x1b[44m',
-		'\x1b[45m',
-		'\x1b[46m',
-		'\x1b[47m'
-	]
-	const reset = '\x1b[0m'
-	return `${colors[i]}\x1b[30m${i}${reset}${reset}`
-	// const chars = ['⚽', '⚾', '🏀', '🏐', '🏈', '🏉', '🎾']
-	// return chars[i]
-}
-
-const applyColor = R.curry(mapMatrix)(c => (c === '.' ? c : getColor(c)))
-
 export const toString = R.compose(
 	R.concat('\x1Bc'),
 	joinRow,
@@ -64,7 +46,7 @@ export const toString = R.compose(
 )
 
 export const rotate = (matrix, dir = 1) => {
-	const m = R.clone(matrix)
+	const m = matrix.map(x => (typeof x === 'string' ? x.split('') : x))
 	const len = m.length
 	for (let i = 0; i < len / 2; i++)
 		for (let j = i; j < len - i - 1; j++) {

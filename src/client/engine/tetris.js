@@ -1,10 +1,10 @@
-import * as R from 'ramda'
+import R from 'ramda'
 import {
 	rotate,
 	anyMatrix,
 	forEachIdx,
 	copyMatrix,
-	forEachMatrix,
+	forEachMatrix
 } from './matrix'
 
 export const getCell = y => x => matrix =>
@@ -23,7 +23,7 @@ const collision = (arena, x, y) => (cell, w, h) =>
 
 export const willCollide = (arena, x, y) => anyMatrix(collision(arena, x, y))
 
-export const movePiece = (h = 1, w = 0) => state => ({
+export const movePiece = (state, h = 1, w = 0) => ({
 	coord: state.piece.coord,
 	pos: {
 		x: willCollide(state.arena, state.piece.pos.x + w, state.piece.pos.y)(
@@ -35,9 +35,16 @@ export const movePiece = (h = 1, w = 0) => state => ({
 			state.piece.coord
 		)
 			? state.piece.pos.y
-			: state.piece.pos.y + h,
-	},
+			: state.piece.pos.y + h
+	}
 })
+
+export const dropPiece = (state, i = 1) =>
+	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + i)(
+		state.piece.coord
+	)
+		? R.assocPath(['pos', 'y'], state.piece.pos.y + i - 1, state.piece)
+		: dropPiece(state, i + 1)
 
 export const addCurrentPiece = ({ coord, pos }) => arena => {
 	const matrix = copyMatrix(arena)
@@ -62,29 +69,28 @@ export const rotatePiece = state => {
 				coord: rotate(coord, -1),
 				pos: {
 					x,
-					y: pos.y,
-				},
+					y: pos.y
+				}
 			}
 	}
 	return {
 		coord,
-		pos,
+		pos
 	}
 }
 
-const sweep = (row, i) =>
+const clean = (row, i) =>
 	R.compose(
-		R.prepend(row.map(x => '.')),
+		R.prepend(R.map(R.always('.'), row)),
 		R.remove(i, 1)
 	)
 
-export const sweepArena = arena => {
-	forEachIdx(
-		(row, i) =>
-			(arena = !R.any(x => x === '.', row)
-				? sweep(row, i)(arena)
-				: arena),
-		arena
-	)
-	return arena
+export const cleanArena = arena => {
+	let cleaned = copyMatrix(arena)
+	const checkRow = (row, i) =>
+		(cleaned = !R.any(x => x === '.', row)
+			? clean(row, i)(cleaned)
+			: cleaned)
+	forEachIdx(checkRow, cleaned)
+	return cleaned
 }

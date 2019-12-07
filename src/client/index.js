@@ -5,23 +5,32 @@ import thunk from 'redux-thunk'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import { storeStateMiddleWare } from './middleware/storeStateMiddleWare'
-import reducer from './reducers'
 import App from './containers/app'
-import { alert } from './actions/alert'
+import reducer from './reducers'
+import createSocketIoMiddleware from 'redux-socket.io'
+import io from 'socket.io-client'
+
+let socket = io('ws://0.0.0.0:3004/')
+let socketIoMiddleware = createSocketIoMiddleware(socket, 'server/')
 
 const initialState = {}
+
+const middleware = [thunk, socketIoMiddleware]
 
 const store = createStore(
 	reducer,
 	initialState,
-	applyMiddleware(thunk, createLogger())
+	applyMiddleware(...middleware, createLogger())
 )
 
-ReactDom.render(
+store.subscribe(() => {
+	console.log('new client state', store.getState())
+})
+
+const Root = ({ store }) => (
 	<Provider store={store}>
 		<App />
-	</Provider>,
-	document.getElementById('tetris')
+	</Provider>
 )
 
-store.dispatch(alert('Soon, will be here a fantastic Tetris ...'))
+ReactDom.render(<Root store={store} />, document.getElementById('tetris'))

@@ -1,3 +1,4 @@
+import React from 'react'
 import { stateToArr } from '../engine/state'
 
 const cellColor = cell => {
@@ -8,19 +9,19 @@ const cellColor = cell => {
 		'#F538FF',
 		'#FF8E0D',
 		'#FFE138',
-		'#3877FF'
+		'#3877FF',
 	]
 	return { background: cell === '.' ? 'transparent' : colors[cell] }
 }
-export const Board = ({ state }) => {
-	return (
-		<div className='board'>
-			{stateToArr(state).map((cell, i) => (
-				<div
-					className={cell === '.' ? '' : 'cell'}
-					key={i}
-					style={cellColor(cell)}></div>
-			))}
-		</div>
-	)
-}
+
+const createCell = (cell, i) => (
+	<div
+  className={cell === '.' ? '' : 'cell'}
+  key={i}
+  style={cellColor(cell)}
+	/>
+)
+
+export const Board = ({ state }) => (
+	<div className='board'>{stateToArr(state).map(createCell)}</div>
+)
