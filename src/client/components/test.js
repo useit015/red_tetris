@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import '../styles/board.css'
 
 const dropInterval = 200
-let [dropCounter, start] = [0, Date.now()]
+let [dropCounter, piece, start] = [0, 1, Date.now()]
 
 const update = x => {
 	const end = Date.now()
@@ -30,15 +30,11 @@ const needNewPiece = (tetris, state) =>
 const Tetris = ({ tetris, dispatch }) => {
 	const [width, height] = [10, 20]
 	const [step, setStep] = useState(0)
-	const timer = setInterval(() => setStep(update), 50)
+	const timer = setInterval(() => setStep(update), 200)
 	const [state, setState] = R.compose(
 		useState,
 		initState
 	)(width, height)
-
-	useEffect(() => {
-		dispatch({ type: 'server/init' })
-	}, [])
 
 	useEffect(() => {
 		setTimeout(() => dispatch({ type: 'DESTROY_INITIAL_PIECE' }), 200)
@@ -47,7 +43,11 @@ const Tetris = ({ tetris, dispatch }) => {
 	useEffect(() => {
 		if (tetris && tetris.next) {
 			setState(next(tetris.next, tetris.piece))
-			if (needNewPiece(tetris, state)) dispatch({ type: 'server/piece' })
+			if (needNewPiece(tetris, state)) {
+				console.log('piece is --> ', piece)
+				++piece
+				dispatch({ type: 'server/piece', piece })
+			}
 		}
 		return () => clearInterval(timer)
 	}, [step])

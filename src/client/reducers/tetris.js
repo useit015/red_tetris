@@ -1,4 +1,4 @@
-const reducer = (state = {}, action) => {
+const tetrisReducer = (state = {}, action) => {
 	switch (action.type) {
 		case 'NEW_PIECE':
 			return {
@@ -17,4 +17,4 @@ const reducer = (state = {}, action) => {
 	}
 }
 
-export default reducer
+export default tetrisReducer

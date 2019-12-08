@@ -5,11 +5,11 @@ const cellColor = cell => {
 	const colors = [
 		'#FF0D72',
 		'#0DC2FF',
-		'#0DFF72',
+		'#0DFFAA',
 		'#F538FF',
 		'#FF8E0D',
 		'#FFE138',
-		'#3877FF',
+		'#6540EE'
 	]
 	return { background: cell === '.' ? 'transparent' : colors[cell] }
 }

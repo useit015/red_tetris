@@ -1,7 +1,7 @@
 import fs from 'fs'
-import { join } from 'path'
 import debug from 'debug'
-import { getRandomPiece } from '../client/engine/piece.js'
+import Game from './Game'
+import { join } from 'path'
 
 const logerror = debug('tetris:error'),
 	loginfo = debug('tetris:info')
@@ -32,28 +32,35 @@ const initApp = (app, params, cb) => {
 	})
 }
 
+const [games, players] = [{}, {}]
+
 const initEngine = io => {
 	io.on('connection', socket => {
 		loginfo('Socket connected: ' + socket.id)
+		socket.emit('action', {
+			type: 'games',
+			payload: [...new Set(Object.values(players))]
+		})
 		socket.on('action', action => {
 			if (action.type === 'server/ping') {
 				socket.emit('action', { type: 'pong' })
 			}
 			if (action.type === 'server/init') {
-				socket.emit('action', {
-					type: 'INIT',
-					payload: {
-						piece: getRandomPiece(10),
-						next: getRandomPiece(10)
-					}
-				})
+				const { player } = action.payload
+				players[socket.id] = player
+				games[player] = games[player]
+					? games[player]
+					: new Game(socket.id, 'duo')
+				socket.emit('action', games[player].init())
 			}
 			if (action.type === 'server/piece') {
-				socket.emit('action', {
-					type: 'NEW_PIECE',
-					payload: getRandomPiece(10)
-				})
+				const player = players[socket.id]
+				if (games[player])
+					socket.emit('action', games[player].piece(action.piece))
 			}
+		})
+		socket.on('disconnect', () => {
+			delete players[socket.id]
 		})
 	})
 }
