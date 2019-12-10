@@ -1,19 +1,20 @@
 import { getRandomPiece } from '../client/engine/piece'
 
 export default class Game {
-	constructor(host, type = 'solo') {
+	constructor(host, type, room) {
 		this.host = host
+		this.room = room
 		this.type = type
+		this.guest = null
+		this.ready = type === 'solo'
 		this.pieces = [getRandomPiece(10), getRandomPiece(10)]
 	}
 
 	init() {
 		return {
-			type: 'INIT',
-			payload: {
-				piece: this.pieces[0],
-				next: this.pieces[1]
-			}
+			pieces: this.pieces.slice(0, 2),
+			ready: this.ready,
+			type: this.type
 		}
 	}
 
@@ -22,8 +23,12 @@ export default class Game {
 			this.pieces.push(getRandomPiece(10))
 		}
 		return {
-			type: 'NEW_PIECE',
-			payload: this.pieces[index]
+			piece: this.pieces[index]
 		}
+	}
+
+	join(guest) {
+		this.guest = guest
+		this.ready = true
 	}
 }

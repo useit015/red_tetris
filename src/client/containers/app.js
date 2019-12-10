@@ -1,35 +1,11 @@
-import R from 'ramda'
-import React, { useState } from 'react'
-import Tetris from '../components/test'
+import React from 'react'
+import { identity } from 'ramda'
 import { connect } from 'react-redux'
+import Lobby from '../components/lobby'
+import Login from '../components/login'
 
-const App = ({ games, dispatch }) => {
-	const [isGame, setIsGame] = useState(false)
-	const [player, setPlayer] = useState('')
-	if (isGame) return <Tetris />
-	const init = name => {
-		dispatch({
-			type: 'server/init',
-			payload: { player: name ? name : player }
-		})
-		setIsGame(true)
-	}
-	return (
-		<div>
-			<label htmlFor='username'>Username</label>
-			<input
-  name='username'
-  onChange={e => setPlayer(e.target.value)}
-  type='text'
-			/>
-			<button onClick={() => init()}>Play</button>
-			{games.map(host => (
-				<button key={host} onClick={() => init(host)}>
-					{host}
-				</button>
-			))}
-		</div>
-	)
+const App = ({ player: { valid } }) => {
+	return valid ? <Lobby /> : <Login />
 }
 
-export default connect(R.identity)(App)
+export default connect(identity)(App)

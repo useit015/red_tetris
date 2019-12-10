@@ -32,35 +32,60 @@ const initApp = (app, params, cb) => {
 	})
 }
 
-const [games, players] = [{}, {}]
+const [games, players, allPlayers] = [new Map([]), {}, new Set([])]
 
 const initEngine = io => {
 	io.on('connection', socket => {
 		loginfo('Socket connected: ' + socket.id)
 		socket.emit('action', {
 			type: 'games',
-			payload: [...new Set(Object.values(players))]
+			payload: [...games.keys()]
 		})
 		socket.on('action', action => {
-			if (action.type === 'server/ping') {
-				socket.emit('action', { type: 'pong' })
+			if (action.type === 'server/login') {
+				const player = action.payload.player.trim()
+				const valid = Boolean(player) && !allPlayers.has(player)
+				if (valid) {
+					allPlayers.add(player)
+					players[socket.id] = player
+				}
+				socket.emit('action', {
+					type: 'login',
+					payload: { valid, player }
+				})
 			}
-			if (action.type === 'server/init') {
-				const { player } = action.payload
-				players[socket.id] = player
-				games[player] = games[player]
-					? games[player]
-					: new Game(socket.id, 'duo')
-				socket.emit('action', games[player].init())
+			if (action.type === 'server/play') {
+				let game
+				const { type, player, host } = action.payload
+				if (type === 'duo' && host) {
+					game = games.get(host)
+					game.join(socket.id)
+					io.sockets.connected[game.host].emit('action', {
+						type: 'READY'
+					})
+				} else {
+					game = new Game(socket.id, type, games.size + 1)
+				}
+				games.set(player, game)
+				socket.emit('action', {
+					type: 'INIT',
+					payload: {
+						player,
+						room: game.room,
+						...game.init()
+					}
+				})
 			}
 			if (action.type === 'server/piece') {
-				const player = players[socket.id]
-				if (games[player])
-					socket.emit('action', games[player].piece(action.piece))
+				const game = games.get(players[socket.id])
+				socket.emit('action', {
+					type: 'NEW_PIECE',
+					payload: game.piece(action.piece)
+				})
 			}
 		})
 		socket.on('disconnect', () => {
-			delete players[socket.id]
+			delete allPlayers.delete()
 		})
 	})
 }
@@ -78,7 +103,6 @@ export function create(params) {
 				loginfo('Engine stopped.')
 				cb()
 			}
-
 			initEngine(io)
 			resolve({ stop })
 		})

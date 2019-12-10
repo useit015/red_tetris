@@ -2,7 +2,7 @@ import R from 'ramda'
 import React, { useState, useEffect } from 'react'
 import useEventListener from '@use-it/event-listener'
 import { initState, next, handleInput } from '../engine/state'
-import { Board } from './Board'
+import { Board } from './board'
 import { connect } from 'react-redux'
 import '../styles/board.css'
 
@@ -27,24 +27,27 @@ const emptyObj = R.curry(eqObj)({})
 const needNewPiece = (tetris, state) =>
 	emptyObj(tetris.next) || eqObj(state.next.coord, tetris.next.coord)
 
-const Tetris = ({ tetris, dispatch }) => {
+const Tetris = ({ tetris, dispatch, hash }) => {
+	console.log('the hash is ======> ', hash)
+	let timer
 	const [width, height] = [10, 20]
 	const [step, setStep] = useState(0)
-	const timer = setInterval(() => setStep(update), 200)
 	const [state, setState] = R.compose(
 		useState,
 		initState
 	)(width, height)
 
 	useEffect(() => {
-		setTimeout(() => dispatch({ type: 'DESTROY_INITIAL_PIECE' }), 200)
-	}, [tetris.piece])
+		if (tetris.ready) {
+			timer = setInterval(() => setStep(update), 50)
+			setTimeout(() => dispatch({ type: 'DESTROY_INITIAL_PIECE' }), 200)
+		}
+	}, [tetris.ready])
 
 	useEffect(() => {
 		if (tetris && tetris.next) {
 			setState(next(tetris.next, tetris.piece))
 			if (needNewPiece(tetris, state)) {
-				console.log('piece is --> ', piece)
 				++piece
 				dispatch({ type: 'server/piece', piece })
 			}
@@ -62,7 +65,7 @@ const Tetris = ({ tetris, dispatch }) => {
 		})
 	)
 
-	return <Board state={state} />
+	return tetris.ready ? <Board state={state} /> : <div>Loading game</div>
 }
 
 export default connect(R.identity)(Tetris)

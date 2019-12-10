@@ -11,8 +11,6 @@ import {
 
 import { makeMatrix, toString } from './matrix'
 
-import { getRandomPiece } from './piece'
-
 const nextArena = ({ arena, piece, width, height }) =>
 	willCollide(arena, piece.pos.x, piece.pos.y + 1)(piece.coord)
 		? piece.pos.y

@@ -3,7 +3,8 @@ const tetrisReducer = (state = {}, action) => {
 		case 'NEW_PIECE':
 			return {
 				...state,
-				next: action.payload
+				piece: null,
+				next: action.payload.piece
 			}
 		case 'DESTROY_INITIAL_PIECE':
 			return {
@@ -11,7 +12,22 @@ const tetrisReducer = (state = {}, action) => {
 				piece: null
 			}
 		case 'INIT':
-			return action.payload
+			const {
+				room,
+				player,
+				pieces: [piece, next]
+			} = action.payload
+			window.location = `${window.location.origin}/#${room}[${player}]`
+			return {
+				ready: action.payload.ready,
+				piece,
+				next
+			}
+		case 'READY':
+			return {
+				...state,
+				ready: true
+			}
 		default:
 			return state
 	}

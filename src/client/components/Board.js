@@ -14,12 +14,10 @@ const cellColor = cell => {
 	return { background: cell === '.' ? 'transparent' : colors[cell] }
 }
 
+const cellClass = cell => (cell === '.' ? '' : 'cell')
+
 const createCell = (cell, i) => (
-	<div
-  className={cell === '.' ? '' : 'cell'}
-  key={i}
-  style={cellColor(cell)}
-	/>
+	<div className={cellClass(cell)} key={i} style={cellColor(cell)} />
 )
 
 export const Board = ({ state }) => (
