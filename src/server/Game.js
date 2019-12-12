@@ -1,6 +1,6 @@
 import { getRandomPiece } from '../client/engine/piece'
 
-export default class Game {
+export class Game {
 	constructor(host, type, room) {
 		this.host = host
 		this.room = room
@@ -14,7 +14,8 @@ export default class Game {
 		return {
 			pieces: this.pieces.slice(0, 2),
 			ready: this.ready,
-			type: this.type
+			type: this.type,
+			room: this.room
 		}
 	}
 

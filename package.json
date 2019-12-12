@@ -6,13 +6,15 @@
 	"scripts": {
 		"eslint": "eslint src",
 		"client-dist": "NODE_ENV=production webpack --progress --colors",
-		"client-dev": "webpack-dev-server --colors --hot --inline --host 0.0.0.0 --port 8080",
+		"client-dev": "webpack-dev-server --colors --hot --inline --host 0.0.0.0 --port 8080 --disable-host-check",
 		"srv-dev": "DEBUG=tetris:* babel-watch -w src src/server/main.js",
 		"srv-dist": "DEBUG=tetris:* babel src --out-dir dist",
 		"test": "mocha --require babel-core/register --reporter spec",
 		"coverage": "NODE_ENV=test nyc --include src --all -r text -r lcov -r text --require babel-core/register mocha "
 	},
 	"dependencies": {
+		"@material-ui/core": "^4.7.2",
+		"@material-ui/icons": "^4.5.1",
 		"@use-it/event-listener": "^0.1.3",
 		"ramda": "^0.26.1",
 		"react": "^16.12.0",

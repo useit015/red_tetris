@@ -5,7 +5,7 @@ module.exports = {
 
 	output: {
 		path: path.join(__dirname, 'build'),
-		filename: 'bundle.js',
+		filename: 'bundle.js'
 	},
 
 	module: {
@@ -15,13 +15,16 @@ module.exports = {
 				exclude: /node_modules/,
 				loader: 'babel',
 				query: {
-					presets: ['es2015', 'react', 'stage-0'],
-				},
+					presets: ['es2015', 'react', 'stage-0']
+				}
 			},
 			{
 				test: /\.css$/,
-				loader: 'style-loader!css-loader',
-			},
-		],
+				loader: 'style-loader!css-loader'
+			}
+		]
 	},
+	devServer: {
+		disableHostCheck: true
+	}
 }

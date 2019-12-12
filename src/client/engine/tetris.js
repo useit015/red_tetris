@@ -46,10 +46,28 @@ export const dropPiece = (state, i = 1) =>
 		? R.assocPath(['pos', 'y'], state.piece.pos.y + i - 1, state.piece)
 		: dropPiece(state, i + 1)
 
+export const addIncomingLines = lines => state => {
+	state.arena = lines.length
+		? lines.reduce((arena, line) => {
+				const [first, ...last] = arena
+				return [
+					...last,
+					line
+						.toString()
+						.split('')
+						.map(x => ((+x + 2) * 10).toString())
+				]
+		  }, state.arena)
+		: state.arena
+	return state
+}
+
 export const addCurrentPiece = ({ coord, pos }) => arena => {
 	const matrix = copyMatrix(arena)
 	const merge = ({ x, y }) => (cell, w, h) =>
-		cell !== '.' && getCell(h + y)(w + x)(arena)
+		cell !== '.' &&
+		getCell(h + y)(w + x)(arena) &&
+		arena[h + y][w + x] === '.'
 			? (matrix[y + h][x + w] = cell)
 			: 1
 	forEachMatrix(merge(pos), coord)
@@ -79,17 +97,18 @@ export const rotatePiece = state => {
 	}
 }
 
-const clean = (row, i) =>
+const clean = (action, row, i) =>
 	R.compose(
 		R.prepend(R.map(R.always('.'), row)),
-		R.remove(i, 1)
+		R.remove(i, 1),
+		R.tap(x => action(x[i].join('')))
 	)
 
-export const cleanArena = arena => {
+export const cleanArena = action => arena => {
 	let cleaned = copyMatrix(arena)
 	const checkRow = (row, i) =>
-		(cleaned = !R.any(x => x === '.', row)
-			? clean(row, i)(cleaned)
+		(cleaned = !R.any(x => x === '.' || x > 10, row)
+			? clean(action, row, i)(cleaned)
 			: cleaned)
 	forEachIdx(checkRow, cleaned)
 	return cleaned

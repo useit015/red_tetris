@@ -259,7 +259,6 @@
 		"react/jsx-boolean-value": 1, //Enforce boolean attributes notation in JSX
 		"react/jsx-closing-bracket-location": 0, //Validate closing bracket location in JSX
 		"react/jsx-curly-spacing": 0, //Enforce or disallow spaces inside of curly braces in JSX attributes
-		"react/jsx-indent-props": [1, 2], //Validate props indentation in JSX
 		"react/jsx-key": 1, // Validate JSX has key prop when in array or iterator
 		"react/jsx-max-props-per-line": 0, //Limit maximum of props on a single line in JSX
 		"react/jsx-no-bind": 0, // Prevent usage of .bind() and arrow functions in JSX props
@@ -268,7 +267,6 @@
 		"react/jsx-no-undef": 1, //Disallow undeclared variables in JSX
 		"react/jsx-pascal-case": 1, // Enforce PascalCase for user-defined JSX components
 		"react/sort-prop-types": 1, //Enforce propTypes declarations alphabetical sorting
-		"react/jsx-sort-props": 1, //Enforce props alphabetical sorting
 		"react/jsx-uses-react": 1, //Prevent React to be incorrectly marked as unused
 		"react/jsx-uses-vars": 1, //Prevent variables used in JSX to be incorrectly marked as unused
 		"react/no-danger": 1, //Prevent usage of dangerous JSX properties

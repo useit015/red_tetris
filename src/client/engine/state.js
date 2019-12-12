@@ -6,19 +6,20 @@ import {
 	movePiece,
 	dropPiece,
 	cleanArena,
-	rotatePiece
+	rotatePiece,
+	addIncomingLines
 } from './tetris'
 
 import { makeMatrix, toString } from './matrix'
 
-const nextArena = ({ arena, piece, width, height }) =>
+const nextArena = ({ sendLine, lose }) => ({ arena, piece, width, height }) =>
 	willCollide(arena, piece.pos.x, piece.pos.y + 1)(piece.coord)
 		? piece.pos.y
 			? R.compose(
-					cleanArena,
+					cleanArena(sendLine),
 					addCurrentPiece(piece)
 			  )(arena)
-			: makeMatrix(width, height)
+			: R.tap(lose)(makeMatrix(width, height))
 		: arena
 
 const nextPiece = state =>
@@ -35,13 +36,13 @@ const nextNext = nextPcs => state =>
 		? nextPcs
 		: state.next
 
-const nextState = (nextPcs, curPcs) =>
+const nextState = (nextPcs, curPcs, actions) =>
 	R.applySpec({
 		moves: ({ moves }) => moves.slice(1),
 		width: R.prop('width'),
 		height: R.prop('height'),
 		pause: R.prop('pause'),
-		arena: nextArena,
+		arena: nextArena(actions),
 		piece: curPcs ? () => curPcs : nextPiece,
 		next: nextNext(nextPcs)
 	})
@@ -77,13 +78,13 @@ export const initState = (width, height) => ({
 	next: {}
 })
 
-export const next = (nextPcs, curPcs) => state =>
+export const next = ({ next: nextPcs, piece: curPcs }, actions) => state =>
 	!state.pause
 		? R.pipe(
 				state && state.moves && state.moves.length
 					? state.moves[0]
 					: R.identity,
-				nextState(nextPcs, curPcs)
+				nextState(nextPcs, curPcs, actions)
 		  )(state)
 		: state
 
@@ -96,6 +97,8 @@ export const stateToArr = R.compose(
 	R.flatten,
 	merge
 )
+
+export const addLines = addIncomingLines
 
 export const handleInput = cb => event => {
 	let action = null

@@ -1,6 +1,6 @@
 import fs from 'fs'
 import debug from 'debug'
-import Game from './Game'
+import { Player } from './Player'
 import { join } from 'path'
 
 const logerror = debug('tetris:error'),
@@ -32,61 +32,41 @@ const initApp = (app, params, cb) => {
 	})
 }
 
-const [games, players, allPlayers] = [new Map([]), {}, new Set([])]
+const [players, allPlayers, games] = [{}, new Set([]), new Map([])]
 
 const initEngine = io => {
 	io.on('connection', socket => {
 		loginfo('Socket connected: ' + socket.id)
-		socket.emit('action', {
-			type: 'games',
-			payload: [...games.keys()]
-		})
+		const emit = action => socket.emit('action', action)
+		const emitTo = (id, action) =>
+			io.sockets.connected[id].emit('action', action)
+		const player = new Player(socket.id, emit, emitTo)
+		player.getGames(games)
 		socket.on('action', action => {
-			if (action.type === 'server/login') {
-				const player = action.payload.player.trim()
-				const valid = Boolean(player) && !allPlayers.has(player)
-				if (valid) {
-					allPlayers.add(player)
-					players[socket.id] = player
-				}
-				socket.emit('action', {
-					type: 'login',
-					payload: { valid, player }
-				})
-			}
-			if (action.type === 'server/play') {
-				let game
-				const { type, player, host } = action.payload
-				if (type === 'duo' && host) {
-					game = games.get(host)
-					game.join(socket.id)
-					io.sockets.connected[game.host].emit('action', {
-						type: 'READY'
-					})
-				} else {
-					game = new Game(socket.id, type, games.size + 1)
-				}
-				games.set(player, game)
-				socket.emit('action', {
-					type: 'INIT',
-					payload: {
-						player,
-						room: game.room,
-						...game.init()
-					}
-				})
-			}
-			if (action.type === 'server/piece') {
-				const game = games.get(players[socket.id])
-				socket.emit('action', {
-					type: 'NEW_PIECE',
-					payload: game.piece(action.piece)
-				})
+			switch (action.type) {
+				case 'server/login':
+					player.login(action.payload, players, allPlayers)
+					break
+				case 'server/play':
+					player.play(action.payload, games, io.sockets.connected)
+					break
+				case 'server/piece':
+					player.getPiece(action.payload, games, players)
+					break
+				case 'server/line':
+					player.sendLine(
+						action.payload,
+						games,
+						players,
+						io.sockets.connected
+					)
+					break
+				case 'server/lose':
+					player.lose(games, players, io.sockets.connected)
+					break
 			}
 		})
-		socket.on('disconnect', () => {
-			delete allPlayers.delete()
-		})
+		socket.on('disconnect', () => player.leave(allPlayers, players))
 	})
 }
 

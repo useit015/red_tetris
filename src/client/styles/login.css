@@ -1,0 +1,11 @@
+.login {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.login > .MuiButton-root {
+	margin: 1rem;
+	transform: scale(1.07);
+}

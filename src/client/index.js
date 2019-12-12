@@ -10,12 +10,10 @@ import reducer from './reducers'
 import createSocketIoMiddleware from 'redux-socket.io'
 import io from 'socket.io-client'
 
-let socket = io('ws://0.0.0.0:3004/')
-let socketIoMiddleware = createSocketIoMiddleware(socket, 'server/')
-
-const initialState = {}
-
+const socket = io(`ws://${window.location.hostname}:3004/`)
+const socketIoMiddleware = createSocketIoMiddleware(socket, 'server/')
 const middleware = [thunk, socketIoMiddleware]
+const initialState = {}
 
 const store = createStore(
 	reducer,

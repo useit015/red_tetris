@@ -1,4 +1,4 @@
-const tetrisReducer = (state = {}, action) => {
+const tetrisReducer = (state = { lines: [] }, action) => {
 	switch (action.type) {
 		case 'NEW_PIECE':
 			return {
@@ -19,6 +19,7 @@ const tetrisReducer = (state = {}, action) => {
 			} = action.payload
 			window.location = `${window.location.origin}/#${room}[${player}]`
 			return {
+				...state,
 				ready: action.payload.ready,
 				piece,
 				next
@@ -27,6 +28,21 @@ const tetrisReducer = (state = {}, action) => {
 			return {
 				...state,
 				ready: true
+			}
+		case 'LINE':
+			return {
+				...state,
+				lines: [...state.lines, action.payload]
+			}
+		case 'REMOVE_LINES':
+			return {
+				...state,
+				lines: []
+			}
+		case 'WIN':
+			return {
+				...state,
+				win: true
 			}
 		default:
 			return state

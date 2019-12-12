@@ -11,7 +11,14 @@ const cellColor = cell => {
 		'#FFE138',
 		'#6540EE'
 	]
-	return { background: cell === '.' ? 'transparent' : colors[cell] }
+	return {
+		background:
+			cell !== '.'
+				? cell > 10
+					? `${colors[cell / 10 - 2]}40`
+					: colors[cell]
+				: 'transparent'
+	}
 }
 
 const cellClass = cell => (cell === '.' ? '' : 'cell')
@@ -20,6 +27,15 @@ const createCell = (cell, i) => (
 	<div className={cellClass(cell)} key={i} style={cellColor(cell)} />
 )
 
-export const Board = ({ state }) => (
-	<div className='board'>{stateToArr(state).map(createCell)}</div>
+const getObj = o => {
+	if (o) return JSON.stringify(o.join('').split(''), null, 4)
+}
+
+const Board = ({ state }) => (
+	<div>
+		<div className='board'>{stateToArr(state).map(createCell)}</div>
+		<div className='next'>{getObj(state.next.coord)}</div>
+	</div>
 )
+
+export default Board
