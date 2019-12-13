@@ -2,6 +2,7 @@ import fs from 'fs'
 import debug from 'debug'
 import { Player } from './Player'
 import { join } from 'path'
+import { State } from './State'
 
 const logerror = debug('tetris:error'),
 	loginfo = debug('tetris:info')
@@ -32,41 +33,40 @@ const initApp = (app, params, cb) => {
 	})
 }
 
-const [players, allPlayers, games] = [{}, new Set([]), new Map([])]
-
 const initEngine = io => {
+	const broadcast = action => io.emit('action', action)
+	const emit = (id, action) => io.sockets.connected[id].emit('action', action)
+	const state = new State(emit, broadcast)
 	io.on('connection', socket => {
 		loginfo('Socket connected: ' + socket.id)
-		const emit = action => socket.emit('action', action)
-		const emitTo = (id, action) =>
-			io.sockets.connected[id].emit('action', action)
-		const player = new Player(socket.id, emit, emitTo)
-		player.getGames(games)
-		socket.on('action', action => {
-			switch (action.type) {
+		const player = new Player(state, socket.id, emit)
+		player.getGames()
+		socket.on('action', ({ type, payload }) => {
+			switch (type) {
 				case 'server/login':
-					player.login(action.payload, players, allPlayers)
+					player.login(payload)
 					break
 				case 'server/play':
-					player.play(action.payload, games, io.sockets.connected)
+					player.play(payload)
 					break
 				case 'server/piece':
-					player.getPiece(action.payload, games, players)
+					player.getPiece(payload)
 					break
 				case 'server/line':
-					player.sendLine(
-						action.payload,
-						games,
-						players,
-						io.sockets.connected
-					)
+					player.sendLine(payload)
 					break
 				case 'server/lose':
-					player.lose(games, players, io.sockets.connected)
+					player.lose()
+					break
+				case 'server/replay/req':
+					player.askReplay()
+					break
+				case 'server/replay/res':
+					player.replay(payload)
 					break
 			}
 		})
-		socket.on('disconnect', () => player.leave(allPlayers, players))
+		socket.on('disconnect', () => player.leave())
 	})
 }
 

@@ -1,8 +1,8 @@
 import React from 'react'
 
 const gamesList = (games, play) =>
-	games.map(host => (
-		<button key={host} onClick={() => play(host)}>
+	games.map(({ host, full }) => (
+		<button key={host} onClick={() => play(host)} disabled={full}>
 			{host}
 		</button>
 	))

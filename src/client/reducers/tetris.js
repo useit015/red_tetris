@@ -19,7 +19,9 @@ const tetrisReducer = (state = { lines: [] }, action) => {
 			} = action.payload
 			window.location = `${window.location.origin}/#${room}[${player}]`
 			return {
-				...state,
+				lines: [],
+				win: false,
+				lost: false,
 				ready: action.payload.ready,
 				piece,
 				next
@@ -42,7 +44,19 @@ const tetrisReducer = (state = { lines: [] }, action) => {
 		case 'WIN':
 			return {
 				...state,
+				ready: false,
 				win: true
+			}
+		case 'ASK_REPLAY':
+			return {
+				...state,
+				askReplay: true
+			}
+		case 'server/lose':
+			return {
+				...state,
+				ready: false,
+				lost: true
 			}
 		default:
 			return state

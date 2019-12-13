@@ -1,5 +1,7 @@
 import { getRandomPiece } from '../client/engine/piece'
 
+const initPcs = () => [getRandomPiece(), getRandomPiece()]
+
 export class Game {
 	constructor(host, type, room) {
 		this.host = host
@@ -7,9 +9,14 @@ export class Game {
 		this.type = type
 		this.guest = null
 		this.ready = type === 'solo'
-		this.pieces = [getRandomPiece(10), getRandomPiece(10)]
+		this.pieces = initPcs()
 	}
 
+	isFull() {
+		return this.type === 'duo'
+			? Boolean(this.guest) && Boolean(this.host)
+			: Boolean(this.host)
+	}
 	init() {
 		return {
 			pieces: this.pieces.slice(0, 2),
@@ -31,5 +38,19 @@ export class Game {
 	join(guest) {
 		this.guest = guest
 		this.ready = true
+	}
+
+	gameEnded() {
+		this.ready = false
+	}
+
+	replay() {
+		this.pieces = initPcs()
+		this.ready = true
+		return this.init()
+	}
+
+	getOpponent(id) {
+		return this.host === id ? this.guest : this.host
 	}
 }

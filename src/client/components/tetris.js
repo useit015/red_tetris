@@ -1,6 +1,7 @@
 import R from 'ramda'
 import Board from './board'
 import { connect } from 'react-redux'
+import { Button } from '@material-ui/core'
 import React, { useState, useEffect } from 'react'
 import useEventListener from '@use-it/event-listener'
 import { initState, next, handleInput, addLines } from '../engine/state'
@@ -27,29 +28,58 @@ const emptyObj = R.curry(eqObj)({})
 const needNewPiece = (tetris, state) =>
 	emptyObj(tetris.next) || eqObj(state.next.coord, tetris.next.coord)
 
+const Replay = ({ replay, dispatch, reset }) =>
+	replay ? (
+		<div>
+			<h3>Opponent wants to rematch</h3>
+			<Button
+				onClick={() =>
+					dispatch({ type: 'server/replay/res', payload: true })
+				}>
+				Accept
+			</Button>
+			<Button
+				onClick={() =>
+					dispatch({ type: 'server/replay/res', payload: false })
+				}>
+				Decline
+			</Button>
+		</div>
+	) : (
+		<Button
+			onClick={() => {
+				reset()
+				dispatch({ type: 'server/replay/req' })
+			}}>
+			Replay
+		</Button>
+	)
+
 const Tetris = ({ tetris, dispatch }) => {
 	let timer
 	const [width, height] = [10, 20]
 	const [step, setStep] = useState(0)
-	const [lost, setLost] = useState(false)
 	const [state, setState] = R.compose(
 		useState,
 		initState
 	)(width, height)
 
+	const resetState = () => {
+		piece = 0
+		setState(initState(width, height))
+	}
 	const sendLine = line => dispatch({ type: 'server/line', payload: line })
 	const lose = () => {
-		setLost(true)
 		dispatch({ type: 'server/lose' })
 	}
 
 	useEffect(() => {
-		if (tetris.ready && !lost && !tetris.win) {
+		if (tetris.ready && !tetris.lost && !tetris.win) {
 			timer = setInterval(() => setStep(update), 50)
 			setTimeout(() => dispatch({ type: 'DESTROY_INITIAL_PIECE' }), 200)
 		}
 		return () => clearInterval(timer)
-	}, [tetris.ready, lost, tetris.win])
+	}, [tetris.ready, tetris.lost, tetris.win])
 
 	useEffect(() => {
 		if (tetris.lines.length) {
@@ -69,6 +99,10 @@ const Tetris = ({ tetris, dispatch }) => {
 		return () => clearInterval(timer)
 	}, [step])
 
+	useEffect(() => {
+		if (tetris && tetris.askReplay) resetState()
+	}, [tetris.askReplay])
+
 	useEventListener(
 		'keydown',
 		handleInput(action => {
@@ -80,9 +114,23 @@ const Tetris = ({ tetris, dispatch }) => {
 	)
 
 	return tetris.win ? (
-		<div>You Won :D</div>
-	) : lost ? (
-		<div>You lost :/</div>
+		<div>
+			<div>You Won :D</div>
+			<Replay
+				replay={tetris.askReplay}
+				dispatch={dispatch}
+				reset={resetState}
+			/>
+		</div>
+	) : tetris.lost ? (
+		<div>
+			<div>You lost :/</div>
+			<Replay
+				replay={tetris.askReplay}
+				dispatch={dispatch}
+				reset={resetState}
+			/>
+		</div>
 	) : tetris.ready ? (
 		<Board state={state} />
 	) : (

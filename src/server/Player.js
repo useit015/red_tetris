@@ -1,49 +1,49 @@
 import { Game } from './Game'
 import {
-	login,
-	getGames,
-	ready,
+	win,
 	init,
-	sendPiece,
+	ready,
+	login,
 	sendLine,
-	win
+	getGames,
+	sendPiece,
+	askReplay
 } from './actions'
 
 export class Player {
-	constructor(id, emit, emitTo) {
+	constructor(state, id, emit) {
 		this.id = id
 		this.emit = emit
-		this.emitTo = emitTo
-		this.games = new Map([])
-		this.players = {}
-		this.allPlayers = new Set([])
+		this.state = state
 	}
 
-	getGames(games) {
-		this.emit(getGames([...games.keys()]))
+	sendToOpponent(game, action) {
+		this.emit(game.getOpponent(this.id), action)
 	}
 
-	login(payload, players, allPlayers) {
+	getGames() {
+		this.emit(this.id, getGames(this.state.getHosts()))
+	}
+
+	login(payload) {
 		const player = payload.player.trim()
-		const valid = Boolean(player) && !allPlayers.has(player)
-		if (valid) {
-			allPlayers.add(player)
-			players[this.id] = player
-		}
-		this.emit(login({ valid, player }))
+		const valid = this.state.newPlayer(this.id, player)
+		this.emit(this.id, login({ valid, player }))
 	}
 
-	play({ type, player, host }, games) {
+	play({ type, player, host }) {
 		let game
 		if (type === 'duo' && host) {
-			game = games.get(host)
+			game = this.state.getGame(host)
 			game.join(this.id)
-			this.emitTo(game.host, ready())
+			this.emit(game.host, ready())
 		} else {
-			game = new Game(this.id, type, games.size + 1)
+			game = new Game(this.id, type, this.state.newRoom())
 		}
-		games.set(player, game)
+		this.game = game
+		this.state.setGame(player, game)
 		this.emit(
+			this.id,
 			init({
 				player,
 				...game.init()
@@ -51,28 +51,56 @@ export class Player {
 		)
 	}
 
-	getPiece(piece, games, players) {
-		const game = games.get(players[this.id])
-		if (game) this.emit(sendPiece(game.piece(piece)))
+	gameisDuo() {
+		return this.game && this.game.type === 'duo'
 	}
 
-	sendLine(payload, games, players) {
-		const game = games.get(players[this.id])
-		if (game && game.type === 'duo')
-			this.emitTo(
-				game.host === this.id ? game.guest : game.host,
-				sendLine(payload)
-			)
+	getPiece(piece) {
+		if (this.game) this.emit(this.id, sendPiece(this.game.piece(piece)))
 	}
 
-	lose(games, players) {
-		const game = games.get(players[this.id])
-		if (game && game.type === 'duo')
-			this.emitTo(game.host === this.id ? game.guest : game.host, win())
+	sendLine(payload) {
+		if (this.gameisDuo()) this.sendToOpponent(this.game, sendLine(payload))
 	}
 
-	leave(allPlayers, players) {
-		allPlayers.delete(players[this.id])
-		delete players[this.id]
+	lose() {
+		if (this.gameisDuo()) {
+			this.game.gameEnded()
+			this.sendToOpponent(this.game, win())
+		}
+	}
+
+	leave() {
+		this.state.free(this.id)
+	}
+
+	askReplay() {
+		if (this.gameisDuo()) this.sendToOpponent(this.game, askReplay())
+	}
+
+	replay(res) {
+		if (res) {
+			if (this.gameisDuo()) {
+				const newGame = this.game.replay()
+				const player = this.state.getPlayer(this.id)
+				const opponent = this.state.getPlayer(
+					this.game.getOpponent(this.id)
+				)
+				this.sendToOpponent(
+					this.game,
+					init({
+						player: opponent,
+						...newGame
+					})
+				)
+				this.emit(
+					this.id,
+					init({
+						player,
+						...newGame
+					})
+				)
+			}
+		}
 	}
 }

@@ -30,3 +30,7 @@ export const sendLine = payload => ({
 	type: 'LINE',
 	payload
 })
+
+export const askReplay = () => ({
+	type: 'ASK_REPLAY'
+})
