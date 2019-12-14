@@ -43,7 +43,7 @@ const App = ({ player: { valid } }) => {
 					}
 				/>
 			</Snackbar>
-			<Container maxWidth='sm' className='app'>
+			<Container className='app'>
 				{valid ? <Lobby /> : <Login errMsg={setErrMsg} />}
 			</Container>
 		</div>

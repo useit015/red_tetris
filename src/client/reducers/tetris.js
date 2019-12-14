@@ -1,10 +1,10 @@
-const tetrisReducer = (state = { lines: [] }, action) => {
-	switch (action.type) {
+const tetrisReducer = (state = { lines: [] }, { type, payload }) => {
+	switch (type) {
 		case 'NEW_PIECE':
 			return {
 				...state,
 				piece: null,
-				next: action.payload.piece
+				next: payload.piece
 			}
 		case 'DESTROY_INITIAL_PIECE':
 			return {
@@ -16,13 +16,13 @@ const tetrisReducer = (state = { lines: [] }, action) => {
 				room,
 				player,
 				pieces: [piece, next]
-			} = action.payload
+			} = payload
 			window.location = `${window.location.origin}/#${room}[${player}]`
 			return {
 				lines: [],
 				win: false,
 				lost: false,
-				ready: action.payload.ready,
+				ready: payload.ready,
 				piece,
 				next
 			}
@@ -32,9 +32,10 @@ const tetrisReducer = (state = { lines: [] }, action) => {
 				ready: true
 			}
 		case 'LINE':
+
 			return {
 				...state,
-				lines: [...state.lines, action.payload]
+				lines: [...state.lines, ...payload]
 			}
 		case 'REMOVE_LINES':
 			return {
@@ -57,6 +58,13 @@ const tetrisReducer = (state = { lines: [] }, action) => {
 				...state,
 				ready: false,
 				lost: true
+			}
+		case 'OPPONENT_LEFT':
+			return {
+				...state,
+				ready: false,
+				left: true,
+				win: true,
 			}
 		default:
 			return state

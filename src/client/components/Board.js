@@ -1,4 +1,5 @@
-import React from 'react'
+import { flatten } from 'ramda'
+import React, { Fragment } from 'react'
 import { stateToArr } from '../engine/state'
 
 const cellColor = cell => {
@@ -27,15 +28,9 @@ const createCell = (cell, i) => (
 	<div className={cellClass(cell)} key={i} style={cellColor(cell)} />
 )
 
-const getObj = o => {
-	if (o) return JSON.stringify(o.join('').split(''), null, 4)
+const Board = ({ state, opponent }) => {
+	const arr = opponent ? flatten(state.arena) : stateToArr(state)
+	return <div className='board'>{arr.map(createCell)}</div>
 }
-
-const Board = ({ state }) => (
-	<div>
-		<div className='board'>{stateToArr(state).map(createCell)}</div>
-		<div className='next'>{getObj(state.next.coord)}</div>
-	</div>
-)
 
 export default Board

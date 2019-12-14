@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { identity } from 'ramda'
-import { login } from '../actions/server'
+import { serverLogin } from '../actions/server'
 import { TextField, Button } from '@material-ui/core'
 
 // import Button from '@material-ui/core/Button'
@@ -14,12 +14,15 @@ const useform = initial => {
 	return [value, e => setValue(e.target.value)]
 }
 
+const useError = (valid, handler) =>
+	useEffect(() => {
+		if (valid) handler(true)
+	}, [valid])
+
 const Login = ({ player, dispatch, errMsg }) => {
 	const [newPlayer, hook] = useform('')
 	const isInvalid = invalid(player)
-	useEffect(() => {
-		if (isInvalid) errMsg(true)
-	}, [isInvalid])
+	useError(isInvalid)
 	return (
 		<div className='login'>
 			<TextField
@@ -31,11 +34,10 @@ const Login = ({ player, dispatch, errMsg }) => {
 			/>
 			<Button
 				color='primary'
-				onClick={() => dispatch(login(newPlayer))}
+				onClick={() => dispatch(serverLogin(newPlayer))}
 				variant='outlined'>
 				<span>Enter</span>
 			</Button>
-			{/* {true ? <span className='login__error'>NAME IS INVALID</span> : ''} */}
 		</div>
 	)
 }

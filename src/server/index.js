@@ -1,8 +1,8 @@
 import fs from 'fs'
 import debug from 'debug'
-import { Player } from './Player'
 import { join } from 'path'
-import { State } from './State'
+import { Player } from './Player'
+import { Controller } from './Controller'
 
 const logerror = debug('tetris:error'),
 	loginfo = debug('tetris:info')
@@ -36,10 +36,10 @@ const initApp = (app, params, cb) => {
 const initEngine = io => {
 	const broadcast = action => io.emit('action', action)
 	const emit = (id, action) => io.sockets.connected[id].emit('action', action)
-	const state = new State(emit, broadcast)
+	const controller = new Controller(emit, broadcast)
 	io.on('connection', socket => {
 		loginfo('Socket connected: ' + socket.id)
-		const player = new Player(state, socket.id, emit)
+		const player = new Player(controller, socket.id, emit)
 		player.getGames()
 		socket.on('action', ({ type, payload }) => {
 			switch (type) {
@@ -63,6 +63,9 @@ const initEngine = io => {
 					break
 				case 'server/replay/res':
 					player.replay(payload)
+					break
+				case 'server/state':
+					player.shareState(payload)
 					break
 			}
 		})

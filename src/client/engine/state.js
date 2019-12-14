@@ -12,14 +12,15 @@ import {
 
 import { makeMatrix, toString } from './matrix'
 
-const nextArena = ({ sendLine, lose }) => ({ arena, piece, width, height }) =>
+const nextArena = ({ sendLine, lose, shareState }) => ({ arena, piece }) =>
 	willCollide(arena, piece.pos.x, piece.pos.y + 1)(piece.coord)
 		? piece.pos.y
 			? R.compose(
+					R.tap(shareState),
 					cleanArena(sendLine),
 					addCurrentPiece(piece)
 			  )(arena)
-			: R.tap(lose)(makeMatrix(width, height))
+			: R.tap(lose)(arena)
 		: arena
 
 const nextPiece = state =>

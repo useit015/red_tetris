@@ -34,3 +34,13 @@ export const sendLine = payload => ({
 export const askReplay = () => ({
 	type: 'ASK_REPLAY'
 })
+
+export const opponentLeft = () => ({
+	type: 'OPPONENT_LEFT'
+})
+
+export const shareState = payload => ({
+	type: 'SHARE_STATE',
+	payload
+})
+

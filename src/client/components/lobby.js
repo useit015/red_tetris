@@ -1,11 +1,12 @@
 import { identity } from 'ramda'
-import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { serverPlay } from '../actions/server'
+import React, { useState, Fragment } from 'react'
+import Board from './board'
 import Tetris from './tetris'
 import DuoLobby from './duo'
 
-const Lobby = ({ games, player: { player }, dispatch }) => {
+const Lobby = ({ games, player: { player }, opponent, dispatch }) => {
 	const [gameOn, setGameOn] = useState(false)
 	const [duo, setDuo] = useState(false)
 	const play = (type, host) => {
@@ -13,7 +14,10 @@ const Lobby = ({ games, player: { player }, dispatch }) => {
 		setGameOn(true)
 	}
 	return gameOn ? (
-		<Tetris />
+		<div style={{ display: 'flex' }}>
+			<Tetris />
+			<Board state={opponent} opponent/>
+		</div>
 	) : duo ? (
 		<DuoLobby
 			back={() => setDuo(false)}
@@ -21,11 +25,11 @@ const Lobby = ({ games, player: { player }, dispatch }) => {
 			play={host => play('duo', host)}
 		/>
 	) : (
-		<div>
+		<Fragment>
 			<button onClick={() => play('solo')}>Solo</button>
 			<div>Or </div>
 			<button onClick={() => setDuo(true)}>Duo</button>
-		</div>
+		</Fragment>
 	)
 }
 

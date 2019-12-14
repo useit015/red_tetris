@@ -7,46 +7,51 @@ import {
 	sendLine,
 	getGames,
 	sendPiece,
-	askReplay
+	askReplay,
+	shareState
 } from './actions'
 
 export class Player {
-	constructor(state, id, emit) {
+	constructor(controller, id, emit) {
 		this.id = id
 		this.emit = emit
-		this.state = state
+		this.controller = controller
 	}
 
-	sendToOpponent(game, action) {
-		this.emit(game.getOpponent(this.id), action)
+	sendToOpponent(action) {
+		this.emit(this.game.getOpponent(this.id), action)
 	}
 
 	getGames() {
-		this.emit(this.id, getGames(this.state.getHosts()))
+		this.emit(this.id, getGames(this.controller.getHosts()))
 	}
 
 	login(payload) {
 		const player = payload.player.trim()
-		const valid = this.state.newPlayer(this.id, player)
+		const valid = this.controller.newPlayer(this.id, player)
 		this.emit(this.id, login({ valid, player }))
 	}
 
-	play({ type, player, host }) {
+	lookForGame(type, host) {
 		let game
 		if (type === 'duo' && host) {
-			game = this.state.getGame(host)
+			game = this.controller.getGame(host)
 			game.join(this.id)
 			this.emit(game.host, ready())
 		} else {
-			game = new Game(this.id, type, this.state.newRoom())
+			game = new Game(this.id, type, this.controller.newRoom())
 		}
-		this.game = game
-		this.state.setGame(player, game)
+		return game
+	}
+
+	play({ type, player, host }) {
+		this.game = this.lookForGame(type, host)
+		this.controller.setGame(player, this.game)
 		this.emit(
 			this.id,
 			init({
 				player,
-				...game.init()
+				...this.game.init()
 			})
 		)
 	}
@@ -60,34 +65,34 @@ export class Player {
 	}
 
 	sendLine(payload) {
-		if (this.gameisDuo()) this.sendToOpponent(this.game, sendLine(payload))
+		if (this.gameisDuo()) this.sendToOpponent(sendLine(payload))
 	}
 
 	lose() {
 		if (this.gameisDuo()) {
 			this.game.gameEnded()
-			this.sendToOpponent(this.game, win())
+			this.sendToOpponent(win())
 		}
 	}
 
 	leave() {
-		this.state.free(this.id)
+		console.log('the player ', this.id, ' has left')
+		this.controller.free(this.id)
 	}
 
 	askReplay() {
-		if (this.gameisDuo()) this.sendToOpponent(this.game, askReplay())
+		if (this.gameisDuo()) this.sendToOpponent(askReplay())
 	}
 
 	replay(res) {
 		if (res) {
 			if (this.gameisDuo()) {
 				const newGame = this.game.replay()
-				const player = this.state.getPlayer(this.id)
-				const opponent = this.state.getPlayer(
+				const player = this.controller.getPlayer(this.id)
+				const opponent = this.controller.getPlayer(
 					this.game.getOpponent(this.id)
 				)
 				this.sendToOpponent(
-					this.game,
 					init({
 						player: opponent,
 						...newGame
@@ -102,5 +107,9 @@ export class Player {
 				)
 			}
 		}
+	}
+
+	shareState(arena) {
+		this.sendToOpponent(shareState(arena))
 	}
 }

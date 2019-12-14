@@ -46,19 +46,27 @@ export const dropPiece = (state, i = 1) =>
 		? R.assocPath(['pos', 'y'], state.piece.pos.y + i - 1, state.piece)
 		: dropPiece(state, i + 1)
 
-export const addIncomingLines = lines => state => {
+export const addIncomingLines = (lines, lose, state) => {
 	state.arena = lines.length
-		? lines.reduce((arena, line) => {
-				const [first, ...last] = arena
-				return [
+		? lines.reduce(([first, ...last], line) =>
+				[
 					...last,
 					line
 						.toString()
 						.split('')
 						.map(x => ((+x + 2) * 10).toString())
 				]
-		  }, state.arena)
+		  , state.arena)
 		: state.arena
+	const { arena, piece: { pos: { x, y }, coord } } = state
+	if (willCollide(arena, x, y)(coord)) {
+		if (!y || state.pause) {
+			state.piece.coord = []
+			lose()
+		} else {
+			state.piece.pos.y--
+		}
+	}
 	return state
 }
 
@@ -97,19 +105,22 @@ export const rotatePiece = state => {
 	}
 }
 
-const clean = (action, row, i) =>
+const clean = (row, i) =>
 	R.compose(
 		R.prepend(R.map(R.always('.'), row)),
-		R.remove(i, 1),
-		R.tap(x => action(x[i].join('')))
+		R.remove(i, 1)
 	)
 
 export const cleanArena = action => arena => {
 	let cleaned = copyMatrix(arena)
-	const checkRow = (row, i) =>
-		(cleaned = !R.any(x => x === '.' || x > 10, row)
-			? clean(action, row, i)(cleaned)
-			: cleaned)
+	const lines = []
+	const checkRow = (row, i) => {
+		if (!R.any(x => x === '.' || x > 10, row)) {
+			lines.push(row.join(''))
+			cleaned = clean(row, i)(cleaned)
+		}
+	}
 	forEachIdx(checkRow, cleaned)
+	if (lines.length) action(lines)
 	return cleaned
 }
