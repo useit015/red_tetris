@@ -4,6 +4,10 @@
 	box-sizing: border-box;
 }
 
+body {
+	background: #333;
+}
+
 .app {
 	position: absolute;
 	top: 50%;

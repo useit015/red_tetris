@@ -67,7 +67,8 @@ export class Controller {
 				this.games.delete(player)
 				if (this.allGames().find(x => x === game)) {
 					const opponent = game.getOpponent(id)
-					this.emit(opponent, opponentLeft())
+					if (opponent)
+						this.emit(opponent, opponentLeft())
 				} else {
 					this.broadcastGameList()
 				}

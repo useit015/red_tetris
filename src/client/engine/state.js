@@ -23,11 +23,27 @@ const nextArena = ({ sendLine, lose, shareState }) => ({ arena, piece }) =>
 			: R.tap(lose)(arena)
 		: arena
 
+const shiftPiece = ({ arena, piece: { pos: { x, y }, coord } }) =>
+	!willCollide(arena, x, y)(coord)
+		? { pos: { x, y }, coord }
+		: shiftPiece({
+			arena,
+			piece: {
+				pos: {
+					x,
+					y: y - 1
+				},
+				coord: R.drop(1, coord)
+			}
+		})
+
 const nextPiece = state =>
 	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + 1)(
 		state.piece.coord
 	)
-		? state.next
+		? state.piece.pos.y
+			? state.next
+			: shiftPiece(state)
 		: movePiece(state)
 
 const nextNext = nextPcs => state =>

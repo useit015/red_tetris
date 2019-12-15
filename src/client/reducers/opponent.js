@@ -1,10 +1,17 @@
-const opponentReducer = (state = { arena: [], piece: { coord: [], pos: { x: 0, y: 0 } } }, { type, payload }) => {
+import { makeMatrix } from '../engine/matrix'
+
+const defaultState = {
+	arena: makeMatrix()
+}
+
+const opponentReducer = (state = defaultState, { type, payload }) => {
 	switch (type) {
 		case 'SHARE_STATE':
-			return {
-				...state,
-				arena: payload
-			}
+			return { arena: payload }
+		case 'server/replay/res':
+		case 'server/replay/req':
+		case 'ASK_REPLAY':
+			return defaultState
 		default:
 			return state
 	}

@@ -1,0 +1,16 @@
+.lobby__container,
+.tetris__container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.lobby__container {
+	flex-direction: column;
+}
+
+.lobby__container > .MuiButton-outlinedPrimary {
+	margin: .6rem;
+	width: 10vw;
+	transform: scale(1.25);
+}

@@ -1,9 +1,9 @@
 import React from 'react'
 import { compose } from 'ramda'
-import { serverReplayReq, serverReplayRes } from '../actions/server'
 import { Button } from '@material-ui/core'
+import { serverReplayReq, serverReplayRes } from '../actions/server'
 
-const Replay = ({ replay, dispatch, reset }) => {
+export default ({ replay, dispatch, reset }) => {
 	const respond = res => () => dispatch(serverReplayRes(res))
 	const replayReq = compose(
 		reset,
@@ -30,4 +30,3 @@ const Replay = ({ replay, dispatch, reset }) => {
 	)
 }
 
-export default Replay

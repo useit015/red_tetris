@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
 import { identity } from 'ramda'
 import { connect } from 'react-redux'
-import Lobby from '../components/lobby'
-import Login from '../components/login'
+import React, { useState } from 'react'
+import { Close } from '@material-ui/icons'
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles'
 import {
 	Container,
 	Snackbar,
@@ -10,13 +10,23 @@ import {
 	SnackbarContent,
 	Fab
 } from '@material-ui/core'
-import { Close } from '@material-ui/icons'
+import Lobby from './lobby'
+import Login from './login'
 import '../styles/app.css'
+
+const theme = createMuiTheme({
+	palette: {
+		type: 'dark',
+		primary: {
+			main: '#69f0ae'
+		}
+	}
+})
 
 const App = ({ player: { valid } }) => {
 	const [errMsg, setErrMsg] = useState(false)
 	return (
-		<div>
+		<ThemeProvider theme={theme}>
 			<Snackbar
 				open={errMsg}
 				TransitionComponent={Slide}
@@ -35,9 +45,10 @@ const App = ({ player: { valid } }) => {
 								color: '#D22F2F',
 								backgroundColor: '#fff'
 							}}
-							size='small'
+							onClick={() => setErrMsg(false)}
 							className='snackbar__fab'
-							onClick={() => setErrMsg(false)}>
+							size='small'
+							>
 							<Close />
 						</Fab>
 					}
@@ -46,7 +57,7 @@ const App = ({ player: { valid } }) => {
 			<Container className='app'>
 				{valid ? <Lobby /> : <Login errMsg={setErrMsg} />}
 			</Container>
-		</div>
+		</ThemeProvider>
 	)
 }
 

@@ -46,28 +46,41 @@ export const dropPiece = (state, i = 1) =>
 		? R.assocPath(['pos', 'y'], state.piece.pos.y + i - 1, state.piece)
 		: dropPiece(state, i + 1)
 
-export const addIncomingLines = (lines, lose, state) => {
-	state.arena = lines.length
-		? lines.reduce(([first, ...last], line) =>
-				[
-					...last,
-					line
-						.toString()
-						.split('')
-						.map(x => ((+x + 2) * 10).toString())
-				]
-		  , state.arena)
-		: state.arena
+const mergeLines = lines => arena =>
+	lines.reduce(([first, ...last], line) =>
+		[
+			...last,
+			line
+				.toString()
+				.split('')
+				.map(x => ((Number(x) + 2) * 10).toString())
+		]
+	, arena)
+
+const addIncoming = (arena, lines, shareState) =>
+	!lines.length
+		? arena
+		: R.compose(
+			R.tap(shareState),
+			mergeLines(lines)
+		)(arena)
+
+const adjustState = (state, lose) => {
 	const { arena, piece: { pos: { x, y }, coord } } = state
-	if (willCollide(arena, x, y)(coord)) {
-		if (!y || state.pause) {
-			state.piece.coord = []
-			lose()
-		} else {
+	while (willCollide(arena, x, state.piece.pos.y)(coord)) {
+		if (y >= 0) {
 			state.piece.pos.y--
+		} else {
+			lose()
+			break
 		}
 	}
 	return state
+}
+
+export const addIncomingLines = (lines, { shareState, lose }, state) => {
+	state.arena = addIncoming(state.arena, lines, shareState)
+	return adjustState(state, lose)
 }
 
 export const addCurrentPiece = ({ coord, pos }) => arena => {

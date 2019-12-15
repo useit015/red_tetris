@@ -1,16 +1,18 @@
 .board {
-	background: #222;
+	background: #333;
 	width: 400px;
 	height: 800px;
 	margin: 10rem auto;
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(20, 1fr);
+	border: .5px solid #69f0ae99;
+	border-radius: 5px;
 }
 
 .cell {
 	position: relative;
-	border: 1px solid black;
+	border: 1px solid #222;
 }
 
 .cell::before,

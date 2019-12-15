@@ -2,7 +2,7 @@ import R from 'ramda'
 
 const makeRow = (length, fill = '.') => new Array(length).fill(fill)
 
-export const makeMatrix = (width, height) => makeRow(height, makeRow(width))
+export const makeMatrix = (width = 10, height = 20) => makeRow(height, makeRow(width))
 
 const applyToMatrix = hf => (f, matrix) =>
 	hf((row, y) => hf((cell, x) => f(cell, x, y), row), matrix)

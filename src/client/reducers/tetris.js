@@ -64,7 +64,7 @@ const tetrisReducer = (state = { lines: [] }, { type, payload }) => {
 				...state,
 				ready: false,
 				left: true,
-				win: true,
+				win: !state.lose,
 			}
 		default:
 			return state

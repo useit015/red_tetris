@@ -51,6 +51,10 @@ export class Game {
 	}
 
 	getOpponent(id) {
-		return this.host === id ? this.guest : this.host
+		return this.type === 'duo'
+			? this.host === id
+				? this.guest
+				: this.host
+			: null
 	}
 }
