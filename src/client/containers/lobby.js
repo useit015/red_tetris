@@ -2,26 +2,22 @@ import { identity } from 'ramda'
 import { connect } from 'react-redux'
 import { Button } from '@material-ui/core'
 import { serverPlay } from '../actions/server'
-import React, { useState, Fragment } from 'react'
+import React, { useState } from 'react'
 import GameList from '../components/gameList'
-import Board from '../components/board'
 import Tetris from './tetris'
 import '../styles/lobby.css'
 
-const Lobby = ({ games, opponent, dispatch, player: { player } }) => {
+const Lobby = ({ games, dispatch, player: { name } }) => {
 	const [gameOn, setGameOn] = useState(false)
 	const [rooms, setRooms] = useState(false)
 
 	const play = (type, host) => {
-		dispatch(serverPlay(type, player, host))
+		dispatch(serverPlay(type, name, host))
 		setGameOn(true)
 	}
 
 	return gameOn ? (
-		<div className='tetris__container'>
-			<Tetris />
-			<Board state={opponent} opponent/>
-		</div>
+		<Tetris backToLobby={ () => setGameOn(false) }/>
 	) : rooms ? (
 		<GameList
 			games={games}
@@ -39,7 +35,7 @@ const Lobby = ({ games, opponent, dispatch, player: { player } }) => {
 				color='primary'
 				variant='outlined'
 				onClick={() => play('duo')}>
-				Create Game
+				Create Room
 			</Button>
 			<Button
 				color='primary'

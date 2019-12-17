@@ -5,7 +5,7 @@ import { serverLogin } from '../actions/server'
 import { TextField, Button } from '@material-ui/core'
 import '../styles/login.css'
 
-const invalid = ({ valid, player }) => Boolean(!valid && player.length)
+const invalid = ({ valid, name }) => Boolean(!valid && name.length)
 
 const useform = initial => {
 	const [value, setValue] = useState(initial)

@@ -10,7 +10,6 @@
 }
 
 .lobby__container > .MuiButton-outlinedPrimary {
-	margin: .6rem;
-	width: 10vw;
-	transform: scale(1.25);
+	margin: .75rem;
+	transform: scale(1.3);
 }

@@ -1,12 +1,22 @@
-import R from 'ramda'
-import Board from '../components/board'
-import Replay from '../components/replay'
 import { connect } from 'react-redux'
+import { compose, curry, identity } from 'ramda'
+import React, { useState, useEffect } from 'react'
 import useEventListener from '@use-it/event-listener'
-import React, { useState, useEffect, Fragment } from 'react'
 import { destroyPiece, removeLines, } from '../actions/local'
-import { initState, next, handleInput, addLines } from '../engine/state'
-import { serverSendLine, serverShareState, serverLose, serverGetPiece } from '../actions/server'
+import {
+	next,
+	addLines,
+	initState,
+	handleInput
+} from '../engine/state'
+import {
+	serverLose,
+	serverGetPiece,
+	serverSendLine,
+	serverShareState,
+} from '../actions/server'
+import Board from '../components/board'
+import Dialog from '../components/dialog'
 import '../styles/board.css'
 
 const dropInterval = 300
@@ -25,16 +35,16 @@ const update = x => {
 }
 
 const eqObj = (a, b) => JSON.stringify(a) === JSON.stringify(b)
-const emptyObj = R.curry(eqObj)({})
+const emptyObj = curry(eqObj)({})
 
 const needNewPiece = (tetris, state) =>
 	emptyObj(tetris.next) || eqObj(state.next.coord, tetris.next.coord)
 
-const Tetris = ({ tetris, dispatch }) => {
+const Tetris = ({ tetris, opponent, dispatch, backToLobby }) => {
 	let timer
 	const [width, height] = [10, 20]
 	const [step, setStep] = useState(0)
-	const [state, setState] = R.compose(
+	const [state, setState] = compose(
 		useState,
 		initState
 	)(width, height)
@@ -44,17 +54,17 @@ const Tetris = ({ tetris, dispatch }) => {
 		setState(initState(width, height))
 	}
 
-	const shareState = R.compose(
+	const shareState = compose(
 		dispatch,
 		serverShareState
 	)
 
-	const sendLine = R.compose(
+	const sendLine = compose(
 		dispatch,
 		serverSendLine
 	)
 
-	const lose = R.compose(
+	const lose = compose(
 		dispatch,
 		serverLose
 	)
@@ -99,34 +109,16 @@ const Tetris = ({ tetris, dispatch }) => {
 		})
 	)
 
-	return <Fragment>
-		<div style={{ position: 'absolute', top: 0, left: 0 }}>
-			{tetris.win ? (
-				<Fragment>
-					<div>You Won :D</div>
-					{ tetris.left ? <div>Because your opponent left</div> : <Replay
-						replay={tetris.askReplay}
-						dispatch={dispatch}
-						reset={resetState}
-					/>}
-				</Fragment>
-			) : tetris.lost ? (
-				<Fragment>
-					<div>You lost :/</div>
-					<Replay
-						replay={tetris.askReplay}
-						dispatch={dispatch}
-						reset={resetState}
-					/>
-				</Fragment>
-			) : tetris.ready ? (
-				null
-			) : (
-				<div>Loading game</div>
-			)}
-		</div>
-		<Board state={state} />
-	</Fragment>
+	return <div className='tetris__container'>
+		<Board state={ state } />
+		<Board state={ opponent } opponent/>
+		<Dialog
+			tetris={ tetris }
+			reset={ resetState }
+			dispatch={ dispatch }
+			backToLobby={ backToLobby }
+		/>
+	</div>
 }
 
-export default connect(R.identity)(Tetris)
+export default connect(identity)(Tetris)

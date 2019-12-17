@@ -19,29 +19,30 @@ export class Player {
 	}
 
 	sendToOpponent(action) {
-		this.emit(this.game.getOpponent(this.id), action)
+		const opponent = this.game.getOpponent(this.id)
+		this.emit(opponent, action)
 	}
 
 	getGames() {
-		this.emit(this.id, getGames(this.controller.getHosts()))
+		const list = this.controller.getHosts()
+		this.emit(this.id, getGames(list))
 	}
 
-	login(payload) {
-		const player = payload.player.trim()
-		const valid = this.controller.newPlayer(this.id, player)
-		this.emit(this.id, login({ valid, player }))
+	login({ player }) {
+		const name = player.trim()
+		const valid = this.controller.newPlayer(this.id, name)
+		this.emit(this.id, login({ valid, name }))
 	}
 
 	lookForGame(type, host) {
-		let game
 		if (type === 'duo' && host) {
-			game = this.controller.getGame(host)
+			const game = this.controller.getGame(host)
 			game.join(this.id)
 			this.emit(game.host, ready())
+			return game
 		} else {
-			game = new Game(this.id, type, this.controller.newRoom())
+			return new Game(this.id, type, this.controller.newRoom())
 		}
-		return game
 	}
 
 	play({ type, player, host }) {
@@ -85,31 +86,30 @@ export class Player {
 	}
 
 	replay(res) {
-		if (res) {
-			if (this.gameisDuo()) {
-				const newGame = this.game.replay()
-				const player = this.controller.getPlayer(this.id)
-				const opponent = this.controller.getPlayer(
-					this.game.getOpponent(this.id)
-				)
-				this.sendToOpponent(
-					init({
-						player: opponent,
-						...newGame
-					})
-				)
-				this.emit(
-					this.id,
-					init({
-						player,
-						...newGame
-					})
-				)
-			}
+		if (res && this.gameisDuo()) {
+			const newGame = this.game.replay()
+			const player = this.controller.getPlayer(this.id)
+			const opponent = this.controller.getPlayer(
+				this.game.getOpponent(this.id)
+			)
+			this.sendToOpponent(
+				init({
+					player: opponent,
+					...newGame
+				})
+			)
+			this.emit(
+				this.id,
+				init({
+					player,
+					...newGame
+				})
+			)
 		}
 	}
 
 	shareState(arena) {
-		this.sendToOpponent(shareState(arena))
+		if (this.gameisDuo())
+			this.sendToOpponent(shareState(arena))
 	}
 }

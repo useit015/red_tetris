@@ -18,3 +18,7 @@ body {
 .snackbar__fab {
 	transform: scale(0.6);
 }
+
+.MuiButton-outlinedPrimary {
+	box-shadow: 0 0 3px #69f0ae55;
+}

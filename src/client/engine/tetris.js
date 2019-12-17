@@ -68,7 +68,7 @@ const addIncoming = (arena, lines, shareState) =>
 const adjustState = (state, lose) => {
 	const { arena, piece: { pos: { x, y }, coord } } = state
 	while (willCollide(arena, x, state.piece.pos.y)(coord)) {
-		if (y >= 0) {
+		if (state.piece.pos.y >= 0) {
 			state.piece.pos.y--
 		} else {
 			lose()

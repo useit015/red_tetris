@@ -32,7 +32,6 @@ const tetrisReducer = (state = { lines: [] }, { type, payload }) => {
 				ready: true
 			}
 		case 'LINE':
-
 			return {
 				...state,
 				lines: [...state.lines, ...payload]
