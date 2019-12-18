@@ -9,17 +9,21 @@ import {
 } from '@material-ui/core'
 
 const dialog = ({ tetris: { win, lost, askReplay }, dispatch, reset, backToLobby }) => {
+	const [sent, setSent] = useState(false)
 	const [open, setOpen] = useState(Boolean(win || lost))
 	const respond = res => () => dispatch(serverReplayRes(res))
 
 	useEffect(() => {
-		setOpen(Boolean(win || lost))
+		const isOpen = Boolean(win || lost)
+		setOpen(isOpen)
+		setSent(!isOpen)
 	}, [win, lost])
 
 	const replayReq = compose(
 		reset,
 		dispatch,
 		serverReplayReq,
+		() => setSent(true),
 	)
 
 	const title = !askReplay
@@ -41,7 +45,8 @@ const dialog = ({ tetris: { win, lost, askReplay }, dispatch, reset, backToLobby
 		] : [
 			{
 				text: 'Replay',
-				handler: replayReq
+				handler: replayReq,
+				disabled: sent
 			}
 		]
 
@@ -55,6 +60,7 @@ const dialog = ({ tetris: { win, lost, askReplay }, dispatch, reset, backToLobby
 				<Button
 					key={ btn.text }
 					onClick={ btn.handler }
+					disabled={ btn.disabled }
 					color='primary'>
 					{ btn.text }
 				</Button>

@@ -1,6 +1,8 @@
 import React from 'react'
 import { flatten } from 'ramda'
 import { stateToArr } from '../engine/state'
+import { Typography } from '@material-ui/core'
+import NextPiece from './nextPiece'
 
 const getCellColor = cell => {
 	const colors = [
@@ -22,16 +24,30 @@ const getCellColor = cell => {
 	}
 }
 
-export default ({ state, opponent }) => {
+export default ({ state, opponent, name }) => {
 	const arr = opponent ? flatten(state.arena) : stateToArr(state)
-	return <div className='board'>{
-		arr.map((cell, i) => (
-			<div
-				key={i}
-				style={getCellColor(cell)}
-				className={cell === '.' ? '' : 'cell'}
-			/>
-		))}
-	</div>
+
+	return (
+		<div className='board__container'>
+			<div className='board'>
+				<Typography variant='h4' className='player__name'>
+					{ name }
+				</Typography>
+				{
+					arr.map((cell, i) => (
+						<div
+							key={ i }
+							style={ getCellColor(cell) }
+							className={ cell === '.' ? '' : 'cell' } />
+					))
+				}
+			</div>
+			{
+				!opponent && state.next && state.next.coord
+					? <NextPiece piece={ state.next.coord } cellColor={ getCellColor }/>
+					: null
+			}
+		</div>
+	)
 }
 

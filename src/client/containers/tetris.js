@@ -40,7 +40,7 @@ const emptyObj = curry(eqObj)({})
 const needNewPiece = (tetris, state) =>
 	emptyObj(tetris.next) || eqObj(state.next.coord, tetris.next.coord)
 
-const Tetris = ({ tetris, opponent, dispatch, backToLobby }) => {
+const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 	let timer
 	const [width, height] = [10, 20]
 	const [step, setStep] = useState(0)
@@ -110,8 +110,15 @@ const Tetris = ({ tetris, opponent, dispatch, backToLobby }) => {
 	)
 
 	return <div className='tetris__container'>
-		<Board state={ state } />
-		<Board state={ opponent } opponent/>
+		<Board state={ state } name={player.name}/>
+		{
+			type === 'duo'
+				? <Board
+					opponent
+					state={ opponent }
+					name={ opponent.name }/>
+				: null
+		}
 		<Dialog
 			tetris={ tetris }
 			reset={ resetState }

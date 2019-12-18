@@ -39,8 +39,11 @@ export const opponentLeft = () => ({
 	type: 'OPPONENT_LEFT'
 })
 
-export const shareState = payload => ({
+export const shareState = (name, arena) => ({
 	type: 'SHARE_STATE',
-	payload
+	payload: {
+		name,
+		arena
+	}
 })
 

@@ -110,6 +110,7 @@ export class Player {
 
 	shareState(arena) {
 		if (this.gameisDuo())
-			this.sendToOpponent(shareState(arena))
+			this.sendToOpponent(shareState(this.controller.getPlayer(this.id), arena))
 	}
 }
+

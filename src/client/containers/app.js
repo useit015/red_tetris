@@ -55,6 +55,7 @@ const App = ({ player: { valid } }) => {
 				/>
 			</Snackbar>
 			<Container className='app'>
+				{/* <img src='https://media1.tenor.com/images/a5e4b8b7bd2a62b5c26218136c298aa0/tenor.gif'/> */}
 				{valid ? <Lobby /> : <Login errMsg={setErrMsg} />}
 			</Container>
 		</ThemeProvider>
