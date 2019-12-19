@@ -21,13 +21,12 @@
 
 .next__container {
 	justify-content: center;
-	width: calc(160px + 4rem);
-	min-width: calc(16vw + 4rem);
+	min-width: calc(16vw + min(4rem, 1vw));
 }
 
 .next {
 	display: grid;
-	margin: 12rem 2rem;
+	margin: 12rem min(2rem, .5vw);
 }
 
 .cell {

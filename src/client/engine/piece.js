@@ -1,4 +1,4 @@
-import R from 'ramda'
+import { compose, curry, join, map } from 'ramda'
 
 import { rotate, mapMatrix, copyMatrix } from './matrix'
 
@@ -18,7 +18,7 @@ const allPcs = () =>
 		.split('>')
 		.map(cur => cur.split('<').map(cur => cur.split('')))
 
-const randPiece = R.compose(
+const randPiece = compose(
 	randEl,
 	allPcs
 )
@@ -26,16 +26,16 @@ const randPiece = R.compose(
 const genPcs = () => {
 	const color = randInt(7)
 	const formatPiece = cell => (cell === '+' ? color : '.')
-	return R.compose(
+	return compose(
 		randRot,
-		R.curry(mapMatrix)(formatPiece),
+		curry(mapMatrix)(formatPiece),
 		randPiece
 	)()
 }
 
 export const getRandomPiece = (width = 10) => {
-	const coord = R.compose(
-		R.map(R.join('')),
+	const coord = compose(
+		map(join('')),
 		genPcs
 	)()
 	return {
@@ -46,3 +46,5 @@ export const getRandomPiece = (width = 10) => {
 		}
 	}
 }
+
+export const initPcs = () => [getRandomPiece(), getRandomPiece()]

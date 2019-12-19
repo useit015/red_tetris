@@ -58,10 +58,10 @@ export class Controller {
 		return this.allGames().length + 1
 	}
 
-	free(id) {
+	free(id, left) {
 		const player = this.getPlayer(id)
 		if (player) {
-			this.players.delete(id)
+			if (left) this.players.delete(id)
 			const game = this.getGame(player)
 			if (game) {
 				this.games.delete(player)

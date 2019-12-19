@@ -1,6 +1,7 @@
-import { Game } from './Game'
+import Game from './Game'
 import {
 	win,
+	lose,
 	init,
 	ready,
 	login,
@@ -37,11 +38,13 @@ export class Player {
 	lookForGame(type, host) {
 		if (type === 'duo' && host) {
 			const game = this.controller.getGame(host)
+			const player = this.controller.getPlayer(this.id)
 			game.join(this.id)
-			this.emit(game.host, ready())
+			this.emit(game.host, ready(player))
 			return game
 		} else {
-			return new Game(this.id, type, this.controller.newRoom())
+			const room = this.controller.newRoom()
+			return new Game(this.id, type, room)
 		}
 	}
 
@@ -52,41 +55,47 @@ export class Player {
 			this.id,
 			init({
 				player,
+				opponent: host,
 				...this.game.init()
 			})
 		)
 	}
 
-	gameisDuo() {
+	isDuo() {
 		return this.game && this.game.type === 'duo'
 	}
 
-	getPiece(piece) {
-		if (this.game) this.emit(this.id, sendPiece(this.game.piece(piece)))
+	getPiece(pieceIndex) {
+		if (this.game) {
+			const piece = this.game.piece(pieceIndex)
+			this.emit(this.id, sendPiece(piece))
+		}
 	}
 
 	sendLine(payload) {
-		if (this.gameisDuo()) this.sendToOpponent(sendLine(payload))
+		if (this.isDuo()) this.sendToOpponent(sendLine(payload))
 	}
 
 	lose() {
-		if (this.gameisDuo()) {
+		if (this.isDuo()) {
 			this.game.gameEnded()
+			this.emit(this.id, lose())
 			this.sendToOpponent(win())
 		}
 	}
 
-	leave() {
-		console.log('the player ', this.id, ' has left')
-		this.controller.free(this.id)
+	leave(left) {
+		if (left)
+			console.log('the player ', this.id, ' has left')
+		this.controller.free(this.id, left)
 	}
 
 	askReplay() {
-		if (this.gameisDuo()) this.sendToOpponent(askReplay())
+		if (this.isDuo()) this.sendToOpponent(askReplay())
 	}
 
-	replay(res) {
-		if (res && this.gameisDuo()) {
+	replay() {
+		if (this.isDuo()) {
 			const newGame = this.game.replay()
 			const player = this.controller.getPlayer(this.id)
 			const opponent = this.controller.getPlayer(
@@ -102,6 +111,7 @@ export class Player {
 				this.id,
 				init({
 					player,
+					opponent,
 					...newGame
 				})
 			)
@@ -109,8 +119,10 @@ export class Player {
 	}
 
 	shareState(arena) {
-		if (this.gameisDuo())
-			this.sendToOpponent(shareState(this.controller.getPlayer(this.id), arena))
+		if (this.isDuo()) {
+			const player = this.controller.getPlayer(this.id)
+			this.sendToOpponent(shareState(player, arena))
+		}
 	}
 }
 

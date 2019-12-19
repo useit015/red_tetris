@@ -1,6 +1,10 @@
 import { compose } from 'ramda'
-import { serverReplayReq, serverReplayRes } from '../actions/server'
 import React, { useState, useEffect } from 'react'
+import {
+	serverReplayReq,
+	serverReplayRes,
+	serverLeft
+} from '../actions/server'
 import {
 	Button,
 	Dialog,
@@ -8,16 +12,22 @@ import {
 	DialogTitle
 } from '@material-ui/core'
 
-const dialog = ({ tetris: { win, lost, askReplay }, dispatch, reset, backToLobby }) => {
+export default ({ tetris, dispatch, reset, backToLobby }) => {
+	const { win, lost, askReplay } = tetris
 	const [sent, setSent] = useState(false)
 	const [open, setOpen] = useState(Boolean(win || lost))
-	const respond = res => () => dispatch(serverReplayRes(res))
 
-	useEffect(() => {
-		const isOpen = Boolean(win || lost)
-		setOpen(isOpen)
-		setSent(!isOpen)
-	}, [win, lost])
+	const leave = compose(
+		dispatch,
+		serverLeft,
+		backToLobby
+	)
+
+	const respond = compose(
+		reset,
+		dispatch,
+		serverReplayRes,
+	)
 
 	const replayReq = compose(
 		reset,
@@ -26,47 +36,49 @@ const dialog = ({ tetris: { win, lost, askReplay }, dispatch, reset, backToLobby
 		() => setSent(true),
 	)
 
-	const title = !askReplay
-		? win
-			? 'You won :D'
-			: 'You lost :('
-		: 'Opponent wants to rematch'
+	const title = !tetris.left
+		? !askReplay
+			? win
+				? 'You won :D'
+				: 'You lost :('
+			: 'Your opponent wants to rematch'
+		: 'Your opponent has left'
 
-	const buttons = askReplay
-		? [
-			{
-				text: 'Accept',
-				handler: respond(true)
-			},
-			{
-				text: 'Decline',
-				handler: respond(false)
-			}
-		] : [
-			{
-				text: 'Replay',
-				handler: replayReq,
-				disabled: sent
-			}
-		]
+	const button = askReplay
+		? {
+			text: 'Accept',
+			handler: respond
+		} : {
+			text: 'Replay',
+			handler: replayReq,
+			disabled: sent
+		}
 
-	return <Dialog open={ open } >
-		<DialogTitle>{ title }</DialogTitle>
-		<DialogActions>
-			<Button onClick={ backToLobby } color='primary'>
-				Back to lobby
-			</Button>
-			{buttons.map(btn =>
-				<Button
-					key={ btn.text }
-					onClick={ btn.handler }
-					disabled={ btn.disabled }
-					color='primary'>
-					{ btn.text }
+	useEffect(() => {
+		const isOpen = Boolean(win || lost)
+		setOpen(isOpen)
+		setSent(!isOpen)
+	}, [win, lost])
+
+	useEffect(() => {
+		setSent(tetris.left)
+	}, [tetris.left])
+
+	return (
+		<Dialog open={ open } >
+			<DialogTitle>{ title }</DialogTitle>
+			<DialogActions>
+				<Button onClick={ leave } color='primary'>
+					Back to lobby
 				</Button>
-			)}
-		</DialogActions>
-	</Dialog>
+				<Button
+					key={ button.text }
+					onClick={ button.handler }
+					disabled={ button.disabled }
+					color='primary'>
+					{ button.text }
+				</Button>
+			</DialogActions>
+		</Dialog>
+	)
 }
-
-export default dialog

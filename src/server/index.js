@@ -64,14 +64,17 @@ const initEngine = io => {
 					player.askReplay()
 					break
 				case 'server/replay/res':
-					player.replay(payload)
+					player.replay()
 					break
 				case 'server/state':
 					player.shareState(payload)
 					break
+				case 'server/left':
+					player.leave()
+					break
 			}
 		})
-		socket.on('disconnect', () => player.leave())
+		socket.on('disconnect', () => player.leave(true))
 	})
 }
 

@@ -23,30 +23,44 @@ const Lobby = ({ games, dispatch, player: { name } }) => {
 		setGameOn(false)
 	}
 
-	if (gameOn) return <Tetris type={ gameType } backToLobby={ backToLobby }/>
+	if (gameOn)
+		return (
+			<Tetris
+				type={ gameType }
+				backToLobby={ backToLobby }
+			/>
+		)
 
-	if (rooms) return <GameList games={ games } play={ host => play('duo', host) }/>
+	if (rooms)
+		return (
+			<GameList
+				games={ games }
+				play={ host => play('duo', host) }
+			/>
+		)
 
-	return <div className='lobby__container'>
-		<Button
-			color='primary'
-			variant='outlined'
-			onClick={ () => play('solo') }>
-			Play solo
-		</Button>
-		<Button
-			color='primary'
-			variant='outlined'
-			onClick={ () => play('duo') }>
-			Create Room
-		</Button>
-		<Button
-			color='primary'
-			variant='outlined'
-			onClick={ () => setRooms(true) }>
-			Join room
-		</Button>
-	</div>
+	return (
+		<div className='lobby__container'>
+			<Button
+				color='primary'
+				variant='outlined'
+				onClick={ () => play('solo') }>
+				Play solo
+			</Button>
+			<Button
+				color='primary'
+				variant='outlined'
+				onClick={ () => play('duo') }>
+				Create Room
+			</Button>
+			<Button
+				color='primary'
+				variant='outlined'
+				onClick={ () => setRooms(true) }>
+				Join room
+			</Button>
+		</div>
+	)
 }
 
 export default connect(identity)(Lobby)

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { identity } from 'ramda'
+import { identity, compose } from 'ramda'
 import { serverLogin } from '../actions/server'
+import React, { useState, useEffect } from 'react'
 import { TextField, Button } from '@material-ui/core'
 import '../styles/login.css'
 
@@ -20,20 +20,29 @@ const useError = (valid, handler) =>
 const Login = ({ player, dispatch, errMsg }) => {
 	const [newPlayer, hook] = useform('')
 	const isInvalid = invalid(player)
+
+	const askForLogin = compose(dispatch, serverLogin)
+
 	useError(isInvalid, errMsg)
+
 	return (
 		<div className='login'>
 			<TextField
-				error={isInvalid}
-				label='username'
-				onChange={hook}
 				size='small'
+				label='username'
 				variant='outlined'
+				error={isInvalid}
+				onChange={hook}
+				onKeyPress={({ key }) =>
+					key === 'Enter'
+						? askForLogin(newPlayer)
+						: null
+				}
 			/>
 			<Button
 				color='primary'
 				variant='outlined'
-				onClick={() => dispatch(serverLogin(newPlayer))}>
+				onClick={() => askForLogin(newPlayer)}>
 				Enter
 			</Button>
 		</div>

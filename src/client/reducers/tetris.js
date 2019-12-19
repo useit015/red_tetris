@@ -1,11 +1,13 @@
-const tetrisReducer = (state = { lines: [] }, { type, payload }) => {
+export default (state = { lines: [] }, { type, payload }) => {
 	switch (type) {
 		case 'NEW_PIECE':
-			return {
-				...state,
-				piece: null,
-				next: payload.piece
-			}
+			return !state.ready
+				? state
+				: {
+					...state,
+					piece: null,
+					next: payload.piece
+				}
 		case 'DESTROY_INITIAL_PIECE':
 			return {
 				...state,
@@ -52,11 +54,15 @@ const tetrisReducer = (state = { lines: [] }, { type, payload }) => {
 				...state,
 				askReplay: true
 			}
-		case 'server/lose':
+		case 'LOSE':
 			return {
 				...state,
 				ready: false,
 				lost: true
+			}
+		case 'server/left':
+			return {
+				lines: []
 			}
 		case 'OPPONENT_LEFT':
 			return {
@@ -69,5 +75,3 @@ const tetrisReducer = (state = { lines: [] }, { type, payload }) => {
 			return state
 	}
 }
-
-export default tetrisReducer

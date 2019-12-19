@@ -7,11 +7,21 @@ const defaultState = {
 
 const opponentReducer = (state = defaultState, { type, payload }) => {
 	switch (type) {
+		case 'READY':
+		case 'INIT':
+			return {
+				...defaultState,
+				name: payload.opponent
+			}
+		case 'server/replay/req':
+		case 'server/replay/res':
+			return {
+				...defaultState,
+				name: state.name
+			}
 		case 'SHARE_STATE':
 			return payload
-		case 'server/replay/res':
-		case 'server/replay/req':
-		case 'ASK_REPLAY':
+		case 'server/left':
 			return defaultState
 		default:
 			return state

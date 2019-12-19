@@ -27,11 +27,14 @@ export const serverLose = () => ({
 	type: 'server/lose'
 })
 
-export const serverReplayRes = payload => ({
-	type: 'server/replay/res',
-	payload
+export const serverReplayRes = () => ({
+	type: 'server/replay/res'
 })
 
 export const serverReplayReq = () => ({
 	type: 'server/replay/req'
+})
+
+export const serverLeft = () => ({
+	type: 'server/left'
 })

@@ -20,22 +20,20 @@ export default ({ piece, cellColor }) => {
 	}, [piece])
 
 	return (
-		<div className='next__container'>
-			<div className='next' style={ nextStyles(dim.width, dim.height) }>
-				{
-					piece
-						? piece
-							.join('')
-							.split('')
-							.map((cell, i) => (
-								<div
-									key={ i }
-									style={ cellColor(cell) }
-									className={ cell === '.' ? '' : 'cell' } />
-							))
-						: null
-				}
-			</div>
+		<div className='next' style={ nextStyles(dim.width, dim.height) }>
+			{
+				piece
+					? piece
+						.join('')
+						.split('')
+						.map((cell, i) => (
+							<div
+								key={ i }
+								style={ cellColor(cell) }
+								className={ cell === '.' ? '' : 'cell' } />
+						))
+					: null
+			}
 		</div>
 	)
 }

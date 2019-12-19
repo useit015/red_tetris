@@ -13,3 +13,23 @@
 	margin: .75rem;
 	transform: scale(1.3);
 }
+
+.gameList {
+	color: #69f0ae90;
+}
+
+.gameList.item {
+	margin-left: 2rem;
+}
+
+.gameList.flag {
+	margin-right: 2rem;
+	margin-left: auto;
+	/* margin: 0 2rem 0 auto !important; */
+}
+
+.gameList.title {
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+	text-align: center;
+}

@@ -1,8 +1,6 @@
-import { getRandomPiece } from '../client/engine/piece'
+import { initPcs, getRandomPiece } from '../client/engine/piece'
 
-const initPcs = () => [getRandomPiece(), getRandomPiece()]
-
-export class Game {
+export default class Game {
 	constructor(host, type, room) {
 		this.host = host
 		this.room = room
@@ -17,6 +15,7 @@ export class Game {
 			? Boolean(this.guest) && Boolean(this.host)
 			: Boolean(this.host)
 	}
+
 	init() {
 		return {
 			pieces: this.pieces.slice(0, 2),

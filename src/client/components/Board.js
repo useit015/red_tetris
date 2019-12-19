@@ -4,7 +4,7 @@ import { stateToArr } from '../engine/state'
 import { Typography } from '@material-ui/core'
 import NextPiece from './nextPiece'
 
-const getCellColor = cell => {
+const getCellColor = (cell, opponent) => {
 	const colors = [
 		'#FF0D72',
 		'#0DC2FF',
@@ -17,9 +17,11 @@ const getCellColor = cell => {
 	return {
 		background:
 			cell !== '.'
-				? cell > 10
-					? `${colors[cell / 10 - 2]}40`
-					: colors[cell]
+				? cell <= 10
+					? opponent
+						? `${colors[cell]}99`
+						: colors[cell]
+					: `${colors[cell / 10 - 2]}40`
 				: 'transparent'
 	}
 }
@@ -37,15 +39,23 @@ export default ({ state, opponent, name }) => {
 					arr.map((cell, i) => (
 						<div
 							key={ i }
-							style={ getCellColor(cell) }
+							style={ getCellColor(cell, opponent) }
 							className={ cell === '.' ? '' : 'cell' } />
 					))
 				}
 			</div>
 			{
-				!opponent && state.next && state.next.coord
-					? <NextPiece piece={ state.next.coord } cellColor={ getCellColor }/>
-					: null
+				opponent
+					? null
+					: <div className='next__container'>
+						{
+							state.next && state.next.coord
+								? <NextPiece
+									piece={ state.next.coord }
+									cellColor={ getCellColor }/>
+								: null
+						}
+					</div>
 			}
 		</div>
 	)

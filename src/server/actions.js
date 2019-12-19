@@ -8,8 +8,13 @@ export const getGames = payload => ({
 	payload
 })
 
-export const ready = () => ({
-	type: 'READY'
+export const ready = opponent => ({
+	type: 'READY',
+	payload: { opponent }
+})
+
+export const lose = () => ({
+	type: 'LOSE'
 })
 
 export const win = () => ({
@@ -46,4 +51,3 @@ export const shareState = (name, arena) => ({
 		arena
 	}
 })
-
