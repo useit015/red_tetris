@@ -1,10 +1,12 @@
 .lobby__container,
+.gameList__container,
 .tetris__container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
+.gameList__container,
 .lobby__container {
 	flex-direction: column;
 }
@@ -18,18 +20,24 @@
 	color: #69f0ae90;
 }
 
-.gameList.item {
-	margin-left: 2rem;
+.gameList.actions {
+	margin-left: auto;
 }
 
-.gameList.flag {
-	margin-right: 2rem;
-	margin-left: auto;
-	/* margin: 0 2rem 0 auto !important; */
+.gameList.actions > .gameList.btn {
+	margin: 0 .5rem;
 }
 
 .gameList.title {
 	margin-top: 2rem;
 	margin-bottom: 2rem;
 	text-align: center;
+}
+
+.MuiButton-root {
+	min-width: auto !important;
+}
+
+.MuiList-root {
+	width: 100%;
 }

@@ -51,3 +51,13 @@ export const shareState = (name, arena) => ({
 		arena
 	}
 })
+
+export const joinWatch = payload => ({
+	type: 'JOIN_WATCH',
+	payload
+})
+
+export const initWatch = payload => ({
+	type: 'INIT_WATCH',
+	payload
+})

@@ -1,12 +1,10 @@
 import {
 	tap,
 	prop,
-	pipe,
 	drop,
 	assoc,
 	flatten,
 	compose,
-	identity,
 	applySpec,
 } from 'ramda'
 import {
@@ -46,14 +44,16 @@ const shiftPiece = ({ arena, piece: { pos: { x, y }, coord } }) =>
 			}
 		})
 
-const nextPiece = state =>
+const nextPiece = flag => state =>
 	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + 1)(
 		state.piece.coord
 	)
 		? state.piece.pos.y
 			? state.next
 			: shiftPiece(state)
-		: movePiece(state)
+		: flag
+			? state.piece
+			: movePiece(state)
 
 const nextNext = nextPcs => state =>
 	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + 1)(
@@ -62,14 +62,13 @@ const nextNext = nextPcs => state =>
 		? nextPcs
 		: state.next
 
-const nextState = (nextPcs, curPcs, actions) =>
+const nextState = (nextPcs, curPcs, actions, flag) =>
 	applySpec({
-		moves: ({ moves }) => moves.slice(1),
 		width: prop('width'),
 		height: prop('height'),
 		pause: prop('pause'),
 		arena: nextArena(actions),
-		piece: curPcs ? () => curPcs : nextPiece,
+		piece: curPcs ? () => curPcs : nextPiece(flag),
 		next: nextNext(nextPcs)
 	})
 
@@ -81,11 +80,26 @@ const merge = state =>
 
 const dropPcs = state => assoc('piece', movePiece(state), state)
 
-const dropDown = state => assoc('piece', dropPiece(state), state)
+const createDropDown = () => {
+	let start = Date.now()
+	return state => {
+		const end = Date.now()
+		if (end - start > 250) {
+			start = end
+			return assoc('piece', dropPiece(state), state)
+		}
+		return state
+	}
+}
+
+const dropDown = createDropDown()
 
 const move = dir => state => assoc('piece', movePiece(state, 0, dir), state)
 
-const rotate = state => assoc('piece', rotatePiece(state), state)
+const rotate = state =>
+	state.piece.pos.y
+		? assoc('piece', rotatePiece(state), state)
+		: state
 
 const togglePause = state => assoc('pause', !state.pause, state)
 
@@ -94,7 +108,6 @@ const mutateState = action => state => (!state.pause ? action(state) : state)
 export const initState = (width = 10, height = 20) => ({
 	width,
 	height,
-	moves: [],
 	pause: false,
 	arena: makeMatrix(width, height),
 	piece: {
@@ -104,29 +117,18 @@ export const initState = (width = 10, height = 20) => ({
 	next: {}
 })
 
-export const next = ({ next: nextPcs, piece: curPcs }, actions) => state =>
+export const next = ({ next: nextPcs, piece: curPcs }, actions, flag = false) => state =>
 	!state.pause
-		? pipe(
-				state && state.moves && state.moves.length
-					? state.moves[0]
-					: identity,
-				nextState(nextPcs, curPcs, actions)
-		  )(state)
+		? nextState(nextPcs, curPcs, actions, flag)(state)
 		: state
 
-export const stateToString = compose(
-	toString,
-	merge
-)
+export const stateToString = compose(toString, merge)
 
-export const stateToArr = compose(
-	flatten,
-	merge
-)
+export const stateToArr = compose(flatten, merge)
 
 export const addLines = addIncomingLines
 
-export const handleInput = cb => event => {
+export const handleInput = cb => ({ keyCode }) => {
 	let action = null
 	const keys = {
 		p: 80,
@@ -136,7 +138,7 @@ export const handleInput = cb => event => {
 		right: 39,
 		space: 32
 	}
-	switch (event.keyCode) {
+	switch (keyCode) {
 		case keys.top:
 			action = mutateState(rotate)
 			break

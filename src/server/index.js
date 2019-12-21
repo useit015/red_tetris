@@ -35,9 +35,10 @@ const initApp = (app, params, cb) => {
 
 const initEngine = io => {
 	const broadcast = action => io.emit('action', action)
-	const emit = (id, action) => io.sockets.connected[id]
-		? io.sockets.connected[id].emit('action', action)
-		: () => null
+	const emit = (id, action) =>
+		io.sockets.connected[id]
+			? io.sockets.connected[id].emit('action', action)
+			: null
 	const controller = new Controller(emit, broadcast)
 	io.on('connection', socket => {
 		loginfo('Socket connected: ' + socket.id)
@@ -71,6 +72,9 @@ const initEngine = io => {
 					break
 				case 'server/left':
 					player.leave()
+					break
+				case 'server/watch':
+					player.subscribe(payload)
 					break
 			}
 		})

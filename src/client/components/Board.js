@@ -26,7 +26,7 @@ const getCellColor = (cell, opponent) => {
 	}
 }
 
-export default ({ state, opponent, name }) => {
+const board = ({ state, opponent, name }) => {
 	const arr = opponent ? flatten(state.arena) : stateToArr(state)
 
 	return (
@@ -60,4 +60,6 @@ export default ({ state, opponent, name }) => {
 		</div>
 	)
 }
+
+export default board
 

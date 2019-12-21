@@ -42,7 +42,7 @@ export const movePiece = (state, h = 1, w = 0) => ({
 export const dropPiece = (state, i = 1) =>
 	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + i)(
 		state.piece.coord
-	)
+	) || state.piece.pos.y + i >= 20
 		? R.assocPath(['pos', 'y'], state.piece.pos.y + i - 1, state.piece)
 		: dropPiece(state, i + 1)
 

@@ -3,10 +3,12 @@ import tetris from './tetris'
 import player from './player'
 import games from './games'
 import opponent from './opponent'
+import watch from './watch'
 
 export default combineReducers({
 	games,
-	player,
+	watch,
 	tetris,
+	player,
 	opponent
 })

@@ -30,7 +30,7 @@ const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 	let timer
 	const [width, height] = [10, 20]
 	const [step, setStep] = useState(0)
-	const [piece, setPiece] = useState(2)
+	const [pieceIndex, setPieceIndex] = useState(2)
 	const [state, setState] = compose(
 		useState,
 		initState
@@ -56,9 +56,29 @@ const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 
 	const actions = { sendLine, lose, shareState }
 
+	const nextPiece = () => {
+		if (!tetris.lost && needNewPiece(tetris, state)) {
+			getPieceFromServer(pieceIndex)
+			setPieceIndex(pieceIndex + 1)
+		}
+	}
+
 	const resetState = () => {
-		setPiece(2)
+		setPieceIndex(2)
 		clearState(width, height)
+	}
+
+	const applyUserInput = action => {
+		if (tetris.ready && !tetris.win && !tetris.lost && action) {
+			clearInterval(timer)
+			setState(
+				compose(
+					next(tetris, actions, true),
+					action
+				)
+			)
+			nextPiece()
+		}
 	}
 
 	useEffect(() => {
@@ -79,22 +99,14 @@ const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 	useEffect(() => {
 		if (tetris.next) {
 			nextState(tetris, actions)
-			if (!tetris.lost && needNewPiece(tetris, state)) {
-				getPieceFromServer(piece)
-				setPiece(piece + 1)
-			}
+			nextPiece()
 		}
 		return () => clearInterval(timer)
 	}, [step])
 
 	useEventListener(
 		'keydown',
-		handleInput(newState => {
-			if (newState) {
-				clearInterval(timer)
-				setState(newState)
-			}
-		})
+		handleInput(applyUserInput)
 	)
 
 	return (

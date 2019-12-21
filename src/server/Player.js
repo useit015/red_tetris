@@ -7,6 +7,8 @@ import {
 	login,
 	sendLine,
 	getGames,
+	joinWatch,
+	initWatch,
 	sendPiece,
 	askReplay,
 	shareState
@@ -33,14 +35,17 @@ export class Player {
 		const name = player.trim()
 		const valid = this.controller.newPlayer(this.id, name)
 		this.emit(this.id, login({ valid, name }))
+		if (valid) this.player = name
 	}
 
 	lookForGame(type, host) {
 		if (type === 'duo' && host) {
 			const game = this.controller.getGame(host)
-			const player = this.controller.getPlayer(this.id)
 			game.join(this.id)
-			this.emit(game.host, ready(player))
+			this.emit(game.host, ready(this.player))
+			game.broadcast(id =>
+				this.emit(id, joinWatch(this.player))
+			)
 			return game
 		} else {
 			const room = this.controller.newRoom()
@@ -77,9 +82,9 @@ export class Player {
 	}
 
 	lose() {
+		this.emit(this.id, lose())
 		if (this.isDuo()) {
 			this.game.gameEnded()
-			this.emit(this.id, lose())
 			this.sendToOpponent(win())
 		}
 	}
@@ -91,13 +96,22 @@ export class Player {
 	}
 
 	askReplay() {
-		if (this.isDuo()) this.sendToOpponent(askReplay())
+		if (this.game) {
+			this.isDuo()
+				? this.sendToOpponent(askReplay())
+				: this.emit(
+					this.id,
+					init({
+						player: this.player,
+						...this.game.replay()
+					})
+				)
+		}
 	}
 
 	replay() {
 		if (this.isDuo()) {
 			const newGame = this.game.replay()
-			const player = this.controller.getPlayer(this.id)
 			const opponent = this.controller.getPlayer(
 				this.game.getOpponent(this.id)
 			)
@@ -110,7 +124,7 @@ export class Player {
 			this.emit(
 				this.id,
 				init({
-					player,
+					player: this.player,
 					opponent,
 					...newGame
 				})
@@ -120,9 +134,24 @@ export class Player {
 
 	shareState(arena) {
 		if (this.isDuo()) {
-			const player = this.controller.getPlayer(this.id)
-			this.sendToOpponent(shareState(player, arena))
+			this.sendToOpponent(shareState(this.player, arena))
 		}
+		if (this.game)
+			this.game.broadcast(id =>
+				this.emit(id, shareState(this.player, arena))
+			)
+	}
+
+	subscribe(gameHost) {
+		const game = this.controller.getGame(gameHost)
+		game.subscribe(this.id)
+		const { host, guest, type, room } = game
+		this.emit(this.id, initWatch({
+			host: this.controller.getPlayer(host),
+			guest: this.controller.getPlayer(guest),
+			type,
+			room
+		}))
 	}
 }
 

@@ -12,7 +12,7 @@ import {
 	DialogTitle
 } from '@material-ui/core'
 
-export default ({ tetris, dispatch, reset, backToLobby }) => {
+const dialog = ({ tetris, dispatch, reset, backToLobby }) => {
 	const { win, lost, askReplay } = tetris
 	const [sent, setSent] = useState(false)
 	const [open, setOpen] = useState(Boolean(win || lost))
@@ -82,3 +82,5 @@ export default ({ tetris, dispatch, reset, backToLobby }) => {
 		</Dialog>
 	)
 }
+
+export default dialog

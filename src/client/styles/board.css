@@ -10,7 +10,7 @@
 	grid-template-rows: repeat(20, 1fr);
 	border: .5px solid #69f0ae99;
 	border-radius: 5px;
-	padding: 1px;
+	padding: 2px;
 	position: relative;
 }
 

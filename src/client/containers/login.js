@@ -28,11 +28,12 @@ const Login = ({ player, dispatch, errMsg }) => {
 	return (
 		<div className='login'>
 			<TextField
+				autoFocus
 				size='small'
 				label='username'
 				variant='outlined'
-				error={isInvalid}
-				onChange={hook}
+				error={ isInvalid }
+				onChange={ hook }
 				onKeyPress={({ key }) =>
 					key === 'Enter'
 						? askForLogin(newPlayer)

@@ -1,7 +1,7 @@
-const playerReducer = (state = { valid: false, name: '' }, action) => {
-	switch (action.type) {
+const playerReducer = (state = { valid: false, name: '' }, { type, payload }) => {
+	switch (type) {
 		case 'login':
-			return action.payload
+			return payload
 		default:
 			return state
 	}

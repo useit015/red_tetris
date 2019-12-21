@@ -6,6 +6,7 @@ export default class Game {
 		this.room = room
 		this.type = type
 		this.guest = null
+		this.public = new Set([])
 		this.ready = type === 'solo'
 		this.pieces = initPcs()
 	}
@@ -55,5 +56,13 @@ export default class Game {
 				? this.guest
 				: this.host
 			: null
+	}
+
+	subscribe(id) {
+		this.public.add(id)
+	}
+
+	broadcast(cb) {
+		[...this.public].forEach(cb)
 	}
 }

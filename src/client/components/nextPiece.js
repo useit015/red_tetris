@@ -9,7 +9,7 @@ const nextStyles = (width, height) => ({
 	gridTemplateColumns: `repeat(${width}, 1fr)`
 })
 
-export default ({ piece, cellColor }) => {
+const nextPiece = ({ piece, cellColor }) => {
 	const [dim, setDim] = useState({ width: 0, height: 0 })
 
 	useEffect(() => {
@@ -26,14 +26,16 @@ export default ({ piece, cellColor }) => {
 					? piece
 						.join('')
 						.split('')
-						.map((cell, i) => (
+						.map((cell, i) =>
 							<div
 								key={ i }
 								style={ cellColor(cell) }
 								className={ cell === '.' ? '' : 'cell' } />
-						))
+						)
 					: null
 			}
 		</div>
 	)
 }
+
+export default nextPiece
