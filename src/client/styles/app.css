@@ -1,3 +1,7 @@
+:root {
+	--next-width: calc(16vw + min(4rem, 1vw));
+}
+
 * {
 	margin: 0;
 	padding: 0;

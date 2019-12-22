@@ -1,4 +1,13 @@
-import R from 'ramda'
+import {
+	tap,
+	map,
+	any,
+	always,
+	remove,
+	compose,
+	prepend,
+	assocPath
+} from 'ramda'
 import {
 	rotate,
 	anyMatrix,
@@ -13,7 +22,7 @@ export const getCell = y => x => matrix =>
 const emptyCell = cell => cell === '.'
 
 const emptyArenaCell = (x, y) =>
-	R.compose(
+	compose(
 		emptyCell,
 		getCell(y)(x)
 	)
@@ -43,7 +52,7 @@ export const dropPiece = (state, i = 1) =>
 	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + i)(
 		state.piece.coord
 	) || state.piece.pos.y + i >= 20
-		? R.assocPath(['pos', 'y'], state.piece.pos.y + i - 1, state.piece)
+		? assocPath(['pos', 'y'], state.piece.pos.y + i - 1, state.piece)
 		: dropPiece(state, i + 1)
 
 const mergeLines = lines => arena =>
@@ -60,8 +69,8 @@ const mergeLines = lines => arena =>
 const addIncoming = (arena, lines, shareState) =>
 	!lines.length
 		? arena
-		: R.compose(
-			R.tap(shareState),
+		: compose(
+			tap(shareState),
 			mergeLines(lines)
 		)(arena)
 
@@ -119,16 +128,16 @@ export const rotatePiece = state => {
 }
 
 const clean = (row, i) =>
-	R.compose(
-		R.prepend(R.map(R.always('.'), row)),
-		R.remove(i, 1)
+	compose(
+		prepend(map(always('.'), row)),
+		remove(i, 1)
 	)
 
 export const cleanArena = action => arena => {
 	let cleaned = copyMatrix(arena)
 	const lines = []
 	const checkRow = (row, i) => {
-		if (!R.any(x => x === '.' || x > 10, row)) {
+		if (!any(x => x === '.' || x > 10, row)) {
 			lines.push(row.join(''))
 			cleaned = clean(row, i)(cleaned)
 		}

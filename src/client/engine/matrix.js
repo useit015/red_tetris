@@ -1,4 +1,15 @@
-import R from 'ramda'
+import {
+	map,
+	any,
+	join,
+	curry,
+	clone,
+	flatten,
+	concat,
+	forEach,
+	compose,
+	addIndex,
+} from 'ramda'
 
 const makeRow = (length, fill = '.') => new Array(length).fill(fill)
 
@@ -7,38 +18,38 @@ export const makeMatrix = (width = 10, height = 20) => makeRow(height, makeRow(w
 const applyToMatrix = hf => (f, matrix) =>
 	hf((row, y) => hf((cell, x) => f(cell, x, y), row), matrix)
 
-export const forEachIdx = R.addIndex(R.forEach)
+export const forEachIdx = addIndex(forEach)
 
-const mapIdx = R.addIndex(R.map)
+const mapIdx = addIndex(map)
 
-const anyIdx = R.addIndex(R.any)
+const anyIdx = addIndex(any)
 
 export const forEachMatrix = applyToMatrix(forEachIdx)
 
 export const mapMatrix = applyToMatrix(mapIdx)
 
-export const anyMatrix = R.compose(
-	R.curry,
+export const anyMatrix = compose(
+	curry,
 	applyToMatrix
 )(anyIdx)
 
-export const copyMatrix = R.map(R.clone)
+export const copyMatrix = map(clone)
 
-const joinLine = R.join(' ')
+const joinLine = join(' ')
 
-const joinRow = R.join('\n')
+const joinRow = join('\n')
 
-const doubleRow = R.compose(
-	R.flatten,
-	R.map(x => [x, x])
+const doubleRow = compose(
+	flatten,
+	map(x => [x, x])
 )
 
-export const toString = R.compose(
-	R.concat('\x1Bc'),
+export const toString = compose(
+	concat('\x1Bc'),
 	joinRow,
 	doubleRow,
-	R.map(
-		R.compose(
+	map(
+		compose(
 			joinLine,
 			doubleRow
 		)

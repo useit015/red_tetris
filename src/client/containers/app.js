@@ -1,15 +1,9 @@
 import { identity } from 'ramda'
 import { connect } from 'react-redux'
 import React, { useState } from 'react'
-import { Close } from '@material-ui/icons'
+import { Container } from '@material-ui/core'
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles'
-import {
-	Container,
-	Snackbar,
-	Slide,
-	SnackbarContent,
-	Fab
-} from '@material-ui/core'
+import Alert from '../components/alert'
 import Lobby from './lobby'
 import Login from './login'
 import '../styles/app.css'
@@ -26,37 +20,17 @@ const theme = createMuiTheme({
 const App = ({ player: { valid } }) => {
 	const [errMsg, setErrMsg] = useState(false)
 	return (
-		<ThemeProvider theme={theme}>
-			<Snackbar
-				open={errMsg}
-				TransitionComponent={Slide}
-				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-				ContentProps={{ 'aria-describedby': 'message-id' }}
-				autoHideDuration={2000}
-				onClose={() => setErrMsg(false)}>
-				<SnackbarContent
-					style={{
-						backgroundColor: '#D22F2F'
-					}}
-					message={<span>This username is taken</span>}
-					action={
-						<Fab
-							style={{
-								color: '#D22F2F',
-								backgroundColor: '#fff'
-							}}
-							onClick={() => setErrMsg(false)}
-							className='snackbar__fab'
-							size='small'
-							>
-							<Close />
-						</Fab>
-					}
-				/>
-			</Snackbar>
+		<ThemeProvider theme={ theme }>
+			<Alert
+				isOpen={ errMsg }
+				close={ () => setErrMsg(false) }
+			/>
 			<Container className='app'>
-				{/* <img src='https://media1.tenor.com/images/a5e4b8b7bd2a62b5c26218136c298aa0/tenor.gif'/> */}
-				{valid ? <Lobby /> : <Login errMsg={setErrMsg} />}
+				{
+					valid
+						? <Lobby />
+						: <Login setErrMsg={ setErrMsg } />
+				}
 			</Container>
 		</ThemeProvider>
 	)

@@ -21,7 +21,7 @@
 
 .next__container {
 	justify-content: center;
-	min-width: calc(16vw + min(4rem, 1vw));
+	min-width: var(--next-width);
 }
 
 .next {
@@ -58,4 +58,11 @@
 	text-transform: uppercase;
 	color: #69f0ae80;
 	font-size: min(2.5rem, 3vw);
+}
+
+.player__name.MuiTypography-h4 > .game__paused {
+	top: 50%;
+	font-size: .4em;
+	position: absolute;
+	transform: translate(25%, -50%);
 }

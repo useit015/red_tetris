@@ -38,3 +38,13 @@ export const serverReplayReq = () => ({
 export const serverLeft = () => ({
 	type: 'server/left'
 })
+
+export const serverStartWatch = payload => ({
+	type: 'server/watch',
+	payload
+})
+
+export const serverEndWatch = payload => ({
+	type: 'server/endWatch',
+	payload
+})

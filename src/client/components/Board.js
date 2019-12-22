@@ -27,13 +27,20 @@ const getCellColor = (cell, opponent) => {
 }
 
 const board = ({ state, opponent, name }) => {
-	const arr = opponent ? flatten(state.arena) : stateToArr(state)
+	const arr = opponent
+		? flatten(state.arena)
+		: stateToArr(state)
 
 	return (
 		<div className='board__container'>
 			<div className='board'>
-				<Typography variant='h4' className='player__name'>
+				<Typography
+					variant='h4'
+					className='player__name'>
 					{ name }
+					<span className='game__paused'>
+						{ state.pause ? ' (paused)' : null }
+					</span>
 				</Typography>
 				{
 					arr.map((cell, i) => (
@@ -47,7 +54,8 @@ const board = ({ state, opponent, name }) => {
 			{
 				opponent
 					? null
-					: <div className='next__container'>
+					: <div
+						className='next__container'>
 						{
 							state.next && state.next.coord
 								? <NextPiece

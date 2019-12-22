@@ -27,7 +27,8 @@ export class Player {
 	}
 
 	getGames() {
-		const list = this.controller.getHosts()
+		const list = this.controller.getGames()
+		console.log('------------------> THE GAMES ARE >>>>>>>>>> ', list)
 		this.emit(this.id, getGames(list))
 	}
 
@@ -152,6 +153,11 @@ export class Player {
 			type,
 			room
 		}))
+	}
+
+	unsubscribe(gameHost) {
+		const game = this.controller.getGame(gameHost)
+		game.unsubscribe(this.id)
 	}
 }
 

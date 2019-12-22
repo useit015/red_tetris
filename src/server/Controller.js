@@ -26,12 +26,17 @@ export class Controller {
 		return this.players.get(id)
 	}
 
-	getHosts() {
+	getGames() {
 		const getHost = ({ host }) => this.getPlayer(host)
-		const all = this.allGames().map(getHost)
+		const getInfo = ({ host, type }) => ({
+			type,
+			host: this.getPlayer(host)
+		})
+		const all = this.allGames().map(getInfo)
 		const incomplete = this.availableGames().map(getHost)
-		return all.map(host => ({
+		return all.map(({ host, type }) => ({
 			host,
+			type,
 			full: incomplete.indexOf(host) === -1
 		}))
 	}
@@ -77,6 +82,6 @@ export class Controller {
 	}
 
 	broadcastGameList() {
-		this.broadcast(getGames(this.getHosts()))
+		this.broadcast(getGames(this.getGames()))
 	}
 }

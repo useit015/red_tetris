@@ -30,7 +30,8 @@ const nextPiece = ({ piece, cellColor }) => {
 							<div
 								key={ i }
 								style={ cellColor(cell) }
-								className={ cell === '.' ? '' : 'cell' } />
+								className={ cell === '.' ? '' : 'cell' }
+							/>
 						)
 					: null
 			}

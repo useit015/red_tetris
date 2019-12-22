@@ -3,25 +3,20 @@ import React, { useState, useEffect } from 'react'
 import {
 	serverReplayReq,
 	serverReplayRes,
-	serverLeft
 } from '../actions/server'
 import {
 	Button,
 	Dialog,
-	DialogActions,
-	DialogTitle
+	DialogTitle,
+	DialogActions
 } from '@material-ui/core'
 
-const dialog = ({ tetris, dispatch, reset, backToLobby }) => {
-	const { win, lost, askReplay } = tetris
-	const [sent, setSent] = useState(false)
-	const [open, setOpen] = useState(Boolean(win || lost))
+const dialog = ({ tetris, dispatch, reset, leave }) => {
+	const { win, lost, askReplay, left } = tetris
 
-	const leave = compose(
-		dispatch,
-		serverLeft,
-		backToLobby
-	)
+	const [sent, setSent] = useState(false)
+
+	const [open, setOpen] = useState(Boolean(win || lost))
 
 	const respond = compose(
 		reset,
@@ -36,7 +31,7 @@ const dialog = ({ tetris, dispatch, reset, backToLobby }) => {
 		() => setSent(true),
 	)
 
-	const title = !tetris.left
+	const title = !left
 		? !askReplay
 			? win
 				? 'You won :D'
@@ -44,14 +39,14 @@ const dialog = ({ tetris, dispatch, reset, backToLobby }) => {
 			: 'Your opponent wants to rematch'
 		: 'Your opponent has left'
 
-	const button = askReplay
+	const btn = askReplay && !left
 		? {
 			text: 'Accept',
 			handler: respond
 		} : {
 			text: 'Replay',
 			handler: replayReq,
-			disabled: sent
+			disabled: sent || left
 		}
 
 	useEffect(() => {
@@ -61,22 +56,23 @@ const dialog = ({ tetris, dispatch, reset, backToLobby }) => {
 	}, [win, lost])
 
 	useEffect(() => {
-		setSent(tetris.left)
-	}, [tetris.left])
+		setSent(left)
+	}, [left])
 
 	return (
 		<Dialog open={ open } >
 			<DialogTitle>{ title }</DialogTitle>
 			<DialogActions>
-				<Button onClick={ leave } color='primary'>
+				<Button
+					color='primary'
+					onClick={ leave }>
 					Back to lobby
 				</Button>
 				<Button
-					key={ button.text }
-					onClick={ button.handler }
-					disabled={ button.disabled }
-					color='primary'>
-					{ button.text }
+					color='primary'
+					onClick={ btn.handler }
+					disabled={ btn.disabled }>
+					{ btn.text }
 				</Button>
 			</DialogActions>
 		</Dialog>

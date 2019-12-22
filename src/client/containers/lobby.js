@@ -1,7 +1,11 @@
+import {
+	serverPlay,
+	serverStartWatch,
+	serverEndWatch
+} from '../actions/server'
 import { connect } from 'react-redux'
 import React, { useState } from 'react'
 import { identity, compose } from 'ramda'
-import { serverPlay } from '../actions/server'
 import GameList from '../components/gameList'
 import Menu from '../components/lobbyMenu'
 import Tetris from './tetris'
@@ -9,12 +13,17 @@ import Watch from './watch'
 import '../styles/lobby.css'
 
 const Lobby = ({ games, dispatch, player: { name } }) => {
-	const [watch, setWatch] = useState(false)
 	const [rooms, setRooms] = useState(false)
+
 	const [gameOn, setGameOn] = useState(false)
+
+	const [watching, setWatching] = useState(false)
+
 	const [gameType, setGameType] = useState('solo')
 
 	const initGame = compose(dispatch, serverPlay)
+
+	const askForWatch = compose(dispatch, serverStartWatch)
 
 	const play = (type, host) => {
 		initGame(type, name, host)
@@ -23,36 +32,36 @@ const Lobby = ({ games, dispatch, player: { name } }) => {
 	}
 
 	const startWatch = host => {
-		dispatch({
-			type: 'server/watch',
-			payload: host
-		})
-		setWatch(true)
+		askForWatch(host)
+		setWatching(true)
 	}
 
-	const backToLobby = () => {
+	const back = () => {
+		setWatching(false)
 		setRooms(false)
 		setGameOn(false)
 	}
 
-	if (watch)
-		return <Watch/>
+	const endWatch = compose(back, dispatch, serverEndWatch)
+
+	if (watching)
+		return <Watch back={ endWatch }/>
 
 	if (gameOn)
 		return (
 			<Tetris
+				back={ back }
 				type={ gameType }
-				backToLobby={ backToLobby }
 			/>
 		)
 
 	if (rooms)
 		return (
 			<GameList
+				back={ back }
 				games={ games }
-				back={ () => setRooms(false) }
-				play={ host => play('duo', host) }
 				watch={ startWatch }
+				play={ host => play('duo', host) }
 			/>
 		)
 

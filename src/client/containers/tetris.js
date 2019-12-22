@@ -1,50 +1,90 @@
-import { connect } from 'react-redux'
-import { compose, curry, identity } from 'ramda'
-import React, { useState, useEffect } from 'react'
-import useEventListener from '@use-it/event-listener'
-import { destroyPiece, removeLines, } from '../actions/local'
 import {
+	curry,
+	assoc,
+	compose,
+	identity
+} from 'ramda'
+import {
+	serverLeft,
 	serverLose,
 	serverGetPiece,
 	serverSendLine,
 	serverShareState,
 } from '../actions/server'
 import {
+	destroyPiece,
+	removeLines
+} from '../actions/local'
+import {
 	next,
 	addLines,
 	initState,
 	handleInput
 } from '../engine/state'
-import update from '../engine/update'
-import Board from '../components/board'
+import { connect } from 'react-redux'
+import React, { useState, useEffect } from 'react'
+import useEventListener from '@use-it/event-listener'
+import BackDialog from '../components/backDialog'
+import BackButton from '../components/backButton'
 import Dialog from '../components/dialog'
+import Board from '../components/board'
+import update from '../engine/update'
 import '../styles/board.css'
 
 const eqObj = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+
 const emptyObj = curry(eqObj)({})
 
 const needNewPiece = (tetris, state) =>
 	emptyObj(tetris.next) || eqObj(state.next.coord, tetris.next.coord)
 
-const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
+const useTetrisState = compose(useState, initState)
+
+const containerStyle = type => ({
+	display: 'flex',
+	flexDirection: 'column',
+	paddingLeft: type === 'solo'
+		? 'var(--next-width)'
+		: null
+})
+
+const pauseFactory = () => {
+	let prevState = false
+	return {
+		set: () => state => {
+			prevState = state.pause
+			return assoc('pause', true, state)
+		},
+		unset: () => assoc('pause', prevState)
+	}
+}
+
+const pause = pauseFactory()
+
+const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 	let timer
+
 	const [width, height] = [10, 20]
+
 	const [step, setStep] = useState(0)
+
 	const [pieceIndex, setPieceIndex] = useState(2)
-	const [state, setState] = compose(
-		useState,
-		initState
-	)(width, height)
 
-	const shareState = compose(dispatch, serverShareState)
+	const [exitDialog, setExitDialog] = useState(false)
 
-	const sendLine = compose(dispatch, serverSendLine)
+	const [state, setState] = useTetrisState(width, height)
+
+	const nextState = compose(setState, next)
 
 	const lose = compose(dispatch, serverLose)
 
 	const clearState = compose(setState, initState)
 
-	const nextState = compose(setState, next)
+	const leave = compose(dispatch, serverLeft, back)
+
+	const sendLine = compose(dispatch, serverSendLine)
+
+	const shareState = compose(dispatch, serverShareState)
 
 	const nextStateWithLines = compose(setState, addLines)
 
@@ -55,6 +95,8 @@ const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 	const destroyInitialPiece = compose(dispatch, destroyPiece)
 
 	const actions = { sendLine, lose, shareState }
+
+	const gameIsOn = Boolean(tetris.ready && !tetris.win && !tetris.lost)
 
 	const nextPiece = () => {
 		if (!tetris.lost && needNewPiece(tetris, state)) {
@@ -69,7 +111,7 @@ const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 	}
 
 	const applyUserInput = action => {
-		if (tetris.ready && !tetris.win && !tetris.lost && action) {
+		if (gameIsOn && action) {
 			clearInterval(timer)
 			setState(
 				compose(
@@ -81,8 +123,18 @@ const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 		}
 	}
 
+	const exitGame = () => {
+		setState(pause.set())
+		setExitDialog(true)
+	}
+
+	const resumeGame = () => {
+		setState(pause.unset())
+		setExitDialog(false)
+	}
+
 	useEffect(() => {
-		if (tetris.ready && !tetris.lost && !tetris.win) {
+		if (gameIsOn) {
 			timer = setInterval(() => setStep(update), 50)
 			setTimeout(destroyInitialPiece, 200)
 		}
@@ -110,23 +162,34 @@ const Tetris = ({ tetris, opponent, player, dispatch, backToLobby, type }) => {
 	)
 
 	return (
-		<div className='tetris__container'>
-			<Board state={ state } name={player.name}/>
-			{
-				type === 'duo'
-					? <Board
-						opponent
-						state={ opponent }
-						name={ opponent.name }/>
-					: null
-			}
-			<Dialog
-				tetris={ tetris }
-				reset={ resetState }
-				dispatch={ dispatch }
-				backToLobby={ backToLobby }
+		<div style={ containerStyle(type) }>
+			<BackButton back={ exitGame }/>
+			<BackDialog
+				leave={ leave }
+				open={ exitDialog }
+				play={ resumeGame }
 			/>
+			<div className='tetris__container'>
+				<Board
+					state={ state }
+					name={player.name}/>
+				{
+					type === 'duo'
+						? <Board
+							opponent
+							state={ opponent }
+							name={ opponent.name }/>
+						: null
+				}
+				<Dialog
+					leave={ leave }
+					tetris={ tetris }
+					reset={ resetState }
+					dispatch={ dispatch }
+				/>
+			</div>
 		</div>
+
 	)
 }
 

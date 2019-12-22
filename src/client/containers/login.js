@@ -12,18 +12,19 @@ const useform = initial => {
 	return [value, e => setValue(e.target.value)]
 }
 
-const useError = (valid, handler) =>
+const useError = (isInvalid, player, handler) =>
 	useEffect(() => {
-		if (valid) handler(true)
-	}, [valid])
+		if (isInvalid) handler(true)
+	}, [isInvalid, player])
 
-const Login = ({ player, dispatch, errMsg }) => {
+const Login = ({ player, dispatch, setErrMsg }) => {
 	const [newPlayer, hook] = useform('')
+
 	const isInvalid = invalid(player)
 
 	const askForLogin = compose(dispatch, serverLogin)
 
-	useError(isInvalid, errMsg)
+	useError(isInvalid, player, setErrMsg)
 
 	return (
 		<div className='login'>
@@ -32,8 +33,8 @@ const Login = ({ player, dispatch, errMsg }) => {
 				size='small'
 				label='username'
 				variant='outlined'
-				error={ isInvalid }
 				onChange={ hook }
+				error={ isInvalid }
 				onKeyPress={({ key }) =>
 					key === 'Enter'
 						? askForLogin(newPlayer)

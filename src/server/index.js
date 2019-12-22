@@ -76,6 +76,9 @@ const initEngine = io => {
 				case 'server/watch':
 					player.subscribe(payload)
 					break
+				case 'server/endWatch':
+					player.unsubscribe(payload)
+					break
 			}
 		})
 		socket.on('disconnect', () => player.leave(true))

@@ -62,6 +62,10 @@ export default class Game {
 		this.public.add(id)
 	}
 
+	unsubscribe(id) {
+		this.public.delete(id)
+	}
+
 	broadcast(cb) {
 		[...this.public].forEach(cb)
 	}
