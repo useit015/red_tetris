@@ -8,6 +8,11 @@ const watchReducer = (state = {}, { type, payload }) => {
 				...state,
 				guest: payload
 			}
+		case 'GAME_OVER':
+			return {
+				...state,
+				gameOver: true
+			}
 		default:
 			return state
 	}

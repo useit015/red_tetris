@@ -26,7 +26,7 @@ const getCellColor = (cell, opponent) => {
 	}
 }
 
-const board = ({ state, opponent, name }) => {
+const board = ({ state, opponent, name, score }) => {
 	const arr = opponent
 		? flatten(state.arena)
 		: stateToArr(state)
@@ -54,14 +54,18 @@ const board = ({ state, opponent, name }) => {
 			{
 				opponent
 					? null
-					: <div
-						className='next__container'>
+					: <div className='next__container'>
+						<Typography
+							variant='h5'
+							className='player__name'>
+							{ score }
+						</Typography>
 						{
-							state.next && state.next.coord
-								? <NextPiece
+							!state.next || !state.next.coord
+								? null
+								: <NextPiece
 									piece={ state.next.coord }
 									cellColor={ getCellColor }/>
-								: null
 						}
 					</div>
 			}

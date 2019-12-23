@@ -61,3 +61,7 @@ export const initWatch = payload => ({
 	type: 'INIT_WATCH',
 	payload
 })
+
+export const gameOver = () => ({
+	type: 'GAME_OVER'
+})

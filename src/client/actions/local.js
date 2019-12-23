@@ -6,3 +6,4 @@ export const destroyPiece = () => ({
 export const removeLines = () => ({
 	type: 'REMOVE_LINES'
 })
+

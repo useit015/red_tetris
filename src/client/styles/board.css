@@ -4,7 +4,7 @@
 	height: 800px;
 	max-width: 40vw;
 	max-height: 80vw;
-	margin: 10rem auto;
+	margin: 6rem auto;
 	display: grid;
 	grid-template-columns: repeat(10, 1fr);
 	grid-template-rows: repeat(20, 1fr);
@@ -20,13 +20,15 @@
 }
 
 .next__container {
-	justify-content: center;
+	justify-content: start;
+	flex-direction: column;
+	align-items: center;
 	min-width: var(--next-width);
 }
 
 .next {
 	display: grid;
-	margin: 12rem min(2rem, .5vw);
+	margin: 2rem min(2rem, .5vw);
 }
 
 .cell {
@@ -50,14 +52,22 @@
 	transform: translate(-50%, -50%) rotate(-45deg);
 }
 
+.player__name.MuiTypography-h5,
+.player__name.MuiTypography-h4 {
+	font-size: min(2.5rem, 3vw);
+	text-transform: uppercase;
+	color: #69f0ae80;
+}
+
+.player__name.MuiTypography-h5 {
+	margin: 1rem 0 0;
+}
+
 .player__name.MuiTypography-h4 {
 	position: absolute;
 	left: 50%;
 	top: max(-4vw, -2.5rem);
 	transform: translate(-50%, -50%);
-	text-transform: uppercase;
-	color: #69f0ae80;
-	font-size: min(2.5rem, 3vw);
 }
 
 .player__name.MuiTypography-h4 > .game__paused {

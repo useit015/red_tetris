@@ -17,12 +17,21 @@ const useError = (isInvalid, player, handler) =>
 		if (isInvalid) handler(true)
 	}, [isInvalid, player])
 
+const checkIfLoggedIn = login => {
+	const player = localStorage.getItem('player')
+	if (player) login(player)
+}
+
 const Login = ({ player, dispatch, setErrMsg }) => {
 	const [newPlayer, hook] = useform('')
 
 	const isInvalid = invalid(player)
 
 	const askForLogin = compose(dispatch, serverLogin)
+
+	useEffect(() => {
+		checkIfLoggedIn(askForLogin)
+	}, [])
 
 	useError(isInvalid, player, setErrMsg)
 

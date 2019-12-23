@@ -1,4 +1,5 @@
 import {
+	serverOut,
 	serverPlay,
 	serverStartWatch,
 	serverEndWatch
@@ -25,6 +26,10 @@ const Lobby = ({ games, dispatch, player: { name } }) => {
 
 	const askForWatch = compose(dispatch, serverStartWatch)
 
+	const endWatch = compose(back, dispatch, serverEndWatch)
+
+	const logout = compose(dispatch, serverOut)
+
 	const play = (type, host) => {
 		initGame(type, name, host)
 		setGameType(type)
@@ -41,8 +46,6 @@ const Lobby = ({ games, dispatch, player: { name } }) => {
 		setRooms(false)
 		setGameOn(false)
 	}
-
-	const endWatch = compose(back, dispatch, serverEndWatch)
 
 	if (watching)
 		return <Watch back={ endWatch }/>
@@ -68,6 +71,7 @@ const Lobby = ({ games, dispatch, player: { name } }) => {
 	return (
 		<Menu
 			play={ play }
+			logout={logout }
 			setRooms={ setRooms }
 		/>
 	)

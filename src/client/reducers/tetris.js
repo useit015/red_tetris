@@ -16,6 +16,7 @@ export default (state = { lines: [] }, { type, payload }) => {
 		case 'INIT':
 			const {
 				room,
+				score,
 				player,
 				pieces: [piece, next]
 			} = payload
@@ -26,6 +27,7 @@ export default (state = { lines: [] }, { type, payload }) => {
 				lost: false,
 				ready: payload.ready,
 				piece,
+				score,
 				next
 			}
 		case 'READY':

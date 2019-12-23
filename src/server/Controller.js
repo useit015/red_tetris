@@ -1,4 +1,4 @@
-import { getGames, opponentLeft } from './actions'
+import { gameOver, getGames, opponentLeft } from './actions'
 
 export class Controller {
 	constructor(emit, broadcast) {
@@ -75,6 +75,7 @@ export class Controller {
 					if (opponent)
 						this.emit(opponent, opponentLeft())
 				} else {
+					game.broadcast(id => this.emit(id, gameOver()))
 					this.broadcastGameList()
 				}
 			}

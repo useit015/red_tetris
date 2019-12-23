@@ -61,6 +61,8 @@ const pauseFactory = () => {
 
 const pause = pauseFactory()
 
+const formatScore = score => score ? score.join(' - ') : '0 - 0'
+
 const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 	let timer
 
@@ -105,24 +107,6 @@ const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 		}
 	}
 
-	const resetState = () => {
-		setPieceIndex(2)
-		clearState(width, height)
-	}
-
-	const applyUserInput = action => {
-		if (gameIsOn && action) {
-			clearInterval(timer)
-			setState(
-				compose(
-					next(tetris, actions, true),
-					action
-				)
-			)
-			nextPiece()
-		}
-	}
-
 	const exitGame = () => {
 		setState(pause.set())
 		setExitDialog(true)
@@ -131,6 +115,19 @@ const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 	const resumeGame = () => {
 		setState(pause.unset())
 		setExitDialog(false)
+	}
+
+	const resetState = () => {
+		setPieceIndex(2)
+		clearState(width, height)
+	}
+
+	const applyUserInput = action => {
+		if (gameIsOn && action) {
+			clearInterval(timer)
+			setState(action)
+			nextPiece()
+		}
 	}
 
 	useEffect(() => {
@@ -172,7 +169,8 @@ const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 			<div className='tetris__container'>
 				<Board
 					state={ state }
-					name={player.name}/>
+					name={player.name}
+					score={ formatScore(tetris.score) }/>
 				{
 					type === 'duo'
 						? <Board
@@ -181,13 +179,13 @@ const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 							name={ opponent.name }/>
 						: null
 				}
-				<Dialog
-					leave={ leave }
-					tetris={ tetris }
-					reset={ resetState }
-					dispatch={ dispatch }
-				/>
 			</div>
+			<Dialog
+				leave={ leave }
+				tetris={ tetris }
+				reset={ resetState }
+				dispatch={ dispatch }
+			/>
 		</div>
 
 	)

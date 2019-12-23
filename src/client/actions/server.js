@@ -48,3 +48,7 @@ export const serverEndWatch = payload => ({
 	type: 'server/endWatch',
 	payload
 })
+
+export const serverOut = () => ({
+	type: 'server/logout'
+})

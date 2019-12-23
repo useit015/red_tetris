@@ -9,6 +9,8 @@ export default class Game {
 		this.public = new Set([])
 		this.ready = type === 'solo'
 		this.pieces = initPcs()
+		this.cache = {}
+		this.score = [0, 0]
 	}
 
 	isFull() {
@@ -17,12 +19,19 @@ export default class Game {
 			: Boolean(this.host)
 	}
 
-	init() {
+	getScore(id) {
+		return id === this.host
+			? this.score
+			: [...this.score].reverse()
+	}
+
+	init(id) {
 		return {
 			pieces: this.pieces.slice(0, 2),
+			score: this.getScore(id),
 			ready: this.ready,
 			type: this.type,
-			room: this.room
+			room: this.room,
 		}
 	}
 
@@ -40,14 +49,15 @@ export default class Game {
 		this.ready = true
 	}
 
-	gameEnded() {
+	gameEnded(loser) {
+		this.score[loser === this.host ? 1 : 0]++
 		this.ready = false
 	}
 
-	replay() {
+	replay(id) {
 		this.pieces = initPcs()
 		this.ready = true
-		return this.init()
+		return this.init(id)
 	}
 
 	getOpponent(id) {
@@ -68,5 +78,9 @@ export default class Game {
 
 	broadcast(cb) {
 		[...this.public].forEach(cb)
+	}
+
+	cacheState({ name, arena }) {
+		this.cache[name] = { arena }
 	}
 }

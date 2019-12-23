@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, ButtonGroup } from '@material-ui/core'
 
-const menu = ({ play, setRooms }) => {
+const menu = ({ play, setRooms, logout }) => {
 	const buttons = [
 		{
 			text: 'Play Solo',
@@ -15,13 +15,16 @@ const menu = ({ play, setRooms }) => {
 			text: 'Join Room',
 			handler: () => setRooms(true)
 		},
+		{
+			text: 'Logout',
+			handler: logout
+		},
 	]
 
 	return (
 		<div className='lobby__container'>
 			<ButtonGroup
-
-				// orientation='vertical'
+				orientation='vertical'
 				variant='outlined'
 				color='primary'>
 				{
