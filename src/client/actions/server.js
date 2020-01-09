@@ -23,8 +23,9 @@ export const serverGetPiece = payload => ({
 	payload
 })
 
-export const serverLose = () => ({
-	type: 'server/lose'
+export const serverLose = payload => ({
+	type: 'server/lose',
+	payload
 })
 
 export const serverReplayRes = () => ({

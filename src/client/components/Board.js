@@ -47,25 +47,25 @@ const board = ({ state, opponent, name, score }) => {
 						<div
 							key={ i }
 							style={ getCellColor(cell, opponent) }
-							className={ cell === '.' ? '' : 'cell' } />
+							className={ cell === '.' ? '' : 'cell' }/>
 					))
 				}
 			</div>
 			{
-				opponent
+				opponent && !score
 					? null
 					: <div className='next__container'>
 						<Typography
 							variant='h5'
 							className='player__name'>
-							{ score }
+							{ (score || [0, 0]).join(' - ') }
 						</Typography>
 						{
-							!state.next || !state.next.coord
-								? null
-								: <NextPiece
+							!opponent && state.next && state.next.coord
+								? <NextPiece
 									piece={ state.next.coord }
 									cellColor={ getCellColor }/>
+								: null
 						}
 					</div>
 			}

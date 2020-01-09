@@ -112,7 +112,7 @@ export const rotatePiece = state => {
 	while (willCollide(state.arena, pos.x, pos.y)(coord)) {
 		pos.x += offset
 		offset = -(offset + (offset > 0 ? 1 : -1))
-		if (offset > coord[0].length && x < coord[0].length)
+		if (offset > coord[0].length && pos.x < coord[0].length)
 			return {
 				coord: rotate(coord, -1),
 				pos: {

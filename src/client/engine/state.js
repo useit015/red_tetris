@@ -1,4 +1,5 @@
 import {
+	any,
 	tap,
 	prop,
 	drop,
@@ -8,26 +9,35 @@ import {
 	applySpec,
 } from 'ramda'
 import {
-	addCurrentPiece,
-	willCollide,
 	movePiece,
 	dropPiece,
 	cleanArena,
 	rotatePiece,
+	willCollide,
+	addCurrentPiece,
 	addIncomingLines
 } from './tetris'
 
 import { makeMatrix, toString } from './matrix'
 
+const full = cell => cell !== '.'
+
+const lost = (piece, arena) =>
+	!piece.pos.y && (
+		any(full, arena[0]) ||
+		any(full, piece.coord[0])
+	)
+
 const nextArena = ({ sendLine, lose, shareState }) => ({ arena, piece }) =>
 	willCollide(arena, piece.pos.x, piece.pos.y + 1)(piece.coord)
-		? piece.pos.y
-			? compose(
-					tap(shareState),
-					cleanArena(sendLine),
-					addCurrentPiece(piece)
-			  )(arena)
-			: tap(lose)(arena)
+		? compose(
+			...(
+				lost(piece, arena)
+					? [tap(lose)]
+					: [tap(shareState), cleanArena(sendLine)]
+			),
+			addCurrentPiece(piece)
+		)(arena)
 		: arena
 
 const shiftPiece = ({ arena, piece: { pos: { x, y }, coord } }) =>
@@ -58,7 +68,7 @@ const nextPiece = flag => state =>
 const nextNext = nextPcs => state =>
 	willCollide(state.arena, state.piece.pos.x, state.piece.pos.y + 1)(
 		state.piece.coord
-	) || JSON.stringify(state.next) === '{}'
+	) || JSON.stringify(state.next) === JSON.stringify({})
 		? nextPcs
 		: state.next
 
@@ -94,7 +104,10 @@ const createDropDown = () => {
 
 const dropDown = createDropDown()
 
-const move = dir => state => assoc('piece', movePiece(state, 0, dir), state)
+const move = dir => state =>
+	state.piece.pos.y
+		? assoc('piece', movePiece(state, 0, dir), state)
+		: state
 
 const rotate = state =>
 	state.piece.pos.y

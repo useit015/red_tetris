@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react'
+import React, { useState, useEffect } from 'react'
 import { identity } from 'ramda'
 import { connect } from 'react-redux'
 import Board from '../components/board'
@@ -30,13 +30,15 @@ const useUpdateState = (opponent, setState) =>
 		}))
 	}, [opponent])
 
+const getStateFactory = state => player =>
+	state && state[player]
+		? state[player]
+		: emptyState
+
 const Watch = ({ opponent, watch, back }) => {
 	const [state, setState] = useState(null)
 
-	const getState = player =>
-		state && state[player]
-			? state[player]
-			: emptyState
+	const getState = getStateFactory(state)
 
 	useInitState(watch, setState)
 
@@ -58,19 +60,16 @@ const Watch = ({ opponent, watch, back }) => {
 				<Board
 					opponent
 					name={ watch.host }
+					score={ watch.score }
 					state={ getState(watch.host) }
 				/>
 				{
-					watch.type === 'solo'
-						? null
-						: <Fragment>
-							<div className='next__container'/>
-							<Board
-								opponent
-								name={ watch.guest }
-								state={ getState(watch.guest) }
-							/>
-						</Fragment>
+					watch.type === 'duo'
+						? <Board
+							opponent
+							name={ watch.guest }
+							state={ getState(watch.guest) }/>
+						: null
 				}
 			</div>
 			<WatchDialog

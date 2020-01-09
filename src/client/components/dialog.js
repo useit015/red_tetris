@@ -39,15 +39,18 @@ const dialog = ({ tetris, dispatch, reset, leave }) => {
 			: 'Your opponent wants to rematch'
 		: 'Your opponent has left'
 
-	const btn = askReplay && !left
-		? {
-			text: 'Accept',
-			handler: respond
-		} : {
-			text: 'Replay',
-			handler: replayReq,
-			disabled: sent || left
-		}
+	const acceptBtn = {
+		text: 'Accept',
+		handler: respond
+	}
+
+	const replayBtn = {
+		text: 'Replay',
+		handler: replayReq,
+		disabled: sent || left
+	}
+
+	const btn = askReplay && !left ? acceptBtn : replayBtn
 
 	useEffect(() => {
 		const isOpen = Boolean(win || lost)

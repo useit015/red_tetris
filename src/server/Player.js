@@ -85,8 +85,9 @@ export class Player {
 		if (this.isDuo()) this.sendToOpponent(sendLine(payload))
 	}
 
-	lose() {
+	lose(arena) {
 		this.emit(this.id, lose())
+		this.shareState(arena)
 		if (this.isDuo()) {
 			this.game.gameEnded(this.id)
 			this.sendToOpponent(win())
@@ -160,13 +161,14 @@ export class Player {
 			const game = this.controller.getGame(gameHost)
 			if (game) {
 				game.subscribe(this.id)
-				const { host, guest, type, room, cache } = game
+				const { host, guest, type, room, cache, score } = game
 				this.emit(this.id, initWatch({
 					host: this.controller.getPlayer(host),
 					guest: this.controller.getPlayer(guest),
+					cache,
+					score,
 					type,
-					room,
-					cache
+					room
 				}))
 			}
 		}

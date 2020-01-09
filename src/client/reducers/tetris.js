@@ -49,7 +49,10 @@ export default (state = { lines: [] }, { type, payload }) => {
 			return {
 				...state,
 				ready: false,
-				win: true
+				win: true,
+				score: score
+					? [score[0] + 1, score[1]]
+					: [1, 0]
 			}
 		case 'ASK_REPLAY':
 			return {
@@ -60,7 +63,10 @@ export default (state = { lines: [] }, { type, payload }) => {
 			return {
 				...state,
 				ready: false,
-				lost: true
+				lost: true,
+				score: score
+					? [score[0], score[1] + 1]
+					: [0, 1]
 			}
 		case 'server/left':
 			return {

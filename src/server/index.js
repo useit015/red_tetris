@@ -59,7 +59,7 @@ const initEngine = io => {
 					player.sendLine(payload)
 					break
 				case 'server/lose':
-					player.lose()
+					player.lose(payload)
 					break
 				case 'server/replay/req':
 					player.askReplay()

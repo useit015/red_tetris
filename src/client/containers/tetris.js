@@ -61,8 +61,6 @@ const pauseFactory = () => {
 
 const pause = pauseFactory()
 
-const formatScore = score => score ? score.join(' - ') : '0 - 0'
-
 const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 	let timer
 
@@ -169,8 +167,9 @@ const Tetris = ({ tetris, opponent, player, dispatch, back, type }) => {
 			<div className='tetris__container'>
 				<Board
 					state={ state }
-					name={player.name}
-					score={ formatScore(tetris.score) }/>
+					name={ player.name }
+					score={ tetris.score }
+				/>
 				{
 					type === 'duo'
 						? <Board
